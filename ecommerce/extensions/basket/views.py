@@ -166,3 +166,20 @@ class BasketSummaryView(BasketView):
         })
 
         return context
+
+
+class VoucherAddView(VoucherAddView):
+    """
+    View that applies a voucher to basket.
+    We change the default message in one case.
+    """
+    def apply_voucher_to_basket(self, voucher):
+        super(VoucherAddView, self).apply_voucher_to_basket(voucher)
+        for msg in list(messages.get_messages(self.request)):
+            if str(msg) == 'Your basket does not qualify for a voucher discount':
+                messages.warning(
+                    self.request,
+                    _("This coupon code has reached the maximum limit and cannot be used anymore."))
+                self.request.basket.vouchers.remove(voucher)
+            else:
+                super(VoucherAddView, self).apply_voucher_to_basket(voucher)
