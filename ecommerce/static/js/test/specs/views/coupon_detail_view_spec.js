@@ -87,7 +87,7 @@ define([
 
             it('should display correct data upon rendering', function () {
                 var voucher = model.get('vouchers')[0],
-                    category = model.get('categories')[0].name;
+                    category = model.get('category').name;
 
                 spyOn(view, 'renderVoucherTable');
                 view.render();

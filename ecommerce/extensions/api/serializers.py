@@ -32,6 +32,7 @@ Order = get_model('order', 'Order')
 Product = get_model('catalogue', 'Product')
 Partner = get_model('partner', 'Partner')
 ProductAttributeValue = get_model('catalogue', 'ProductAttributeValue')
+ProductCategory = get_model('catalogue', 'ProductCategory')
 Refund = get_model('refund', 'Refund')
 Selector = get_class('partner.strategy', 'Selector')
 StockRecord = get_model('partner', 'StockRecord')
@@ -419,6 +420,7 @@ class CategorySerializer(serializers.ModelSerializer):
 
     class Meta(object):
         model = Category
+        fields = ('id', 'name',)
 
 
 class CouponListSerializer(serializers.ModelSerializer):
@@ -434,7 +436,7 @@ class CouponSerializer(ProductPaymentInfoMixin, serializers.ModelSerializer):
     seats = serializers.SerializerMethodField()
     client = serializers.SerializerMethodField()
     vouchers = serializers.SerializerMethodField()
-    categories = CategorySerializer(many=True, read_only=True)
+    category = serializers.SerializerMethodField()
     note = serializers.SerializerMethodField()
     max_uses = serializers.SerializerMethodField()
     num_uses = serializers.SerializerMethodField()
@@ -513,11 +515,15 @@ class CouponSerializer(ProductPaymentInfoMixin, serializers.ModelSerializer):
         response = {'Invoice': InvoiceSerializer(invoice).data}
         return response
 
+    def get_category(self, obj):
+        category = ProductCategory.objects.filter(product=obj).first().category
+        return CategorySerializer(category).data
+
     class Meta(object):
         model = Product
         fields = (
             'id', 'title', 'coupon_type', 'last_edited', 'seats', 'client',
-            'price', 'vouchers', 'categories', 'note', 'max_uses', 'num_uses',
+            'price', 'vouchers', 'category', 'note', 'max_uses', 'num_uses',
             'catalog_query', 'course_seat_types', 'payment_information'
         )
 

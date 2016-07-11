@@ -188,12 +188,10 @@ define([], function(){
         'last_edited': lastEditData,
         'seats': [verifiedSeat],
         'client': 'Client Name',
-        'categories': [
-            {
-                'id': 4,
-                'name': 'TESTCAT'
-            }
-        ],
+        'category': {
+            'id': 4,
+            'name': 'TESTCAT'
+        },
         'price': '100.00',
         'vouchers': [enrollmentCodeVoucher],
         'invoice_type': 'Prepaid',
