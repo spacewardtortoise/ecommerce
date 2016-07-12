@@ -192,6 +192,8 @@ function ($, AjaxRetry, Backbone, _) {
                     orderNum: order.number,
                     currency: order.currency,
                     email: order.user.email,
+                    vouchers: order.vouchers,
+                    payment_processor: order.payment_processor,
                     purchasedDatetime: order.date_placed,
                     totalCost: self.formatMoney(order.total_excl_tax),
                     isRefunded: false,

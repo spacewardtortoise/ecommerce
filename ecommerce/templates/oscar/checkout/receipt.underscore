@@ -75,9 +75,26 @@
                   <span class="address-country"><%- receipt.billedTo.country.toUpperCase() %></span>)
               </p>
             </div>
+        <% }  else if ( receipt.shipping_address ) { %>
+            <address>
+            <% for ( var i = 0; i < receipt.shipping_address.length; i++ ) { %>
+                  <%- receipt.shipping_address[i] %> <br/>
+                <% } %>
+            </address>
+        <% } else { %>
+            <p><%- gettext( "No shipping address required." ) %></p>
         <% } %>
 
-
+        <% if ( receipt.vouchers.length > 0 ) { %>
+            <p><%- gettext( "Codes applied" ) %>:
+            <% for ( var i = 0; i < receipt.vouchers.length; i++ ) { %>
+                  <%- receipt.vouchers[i].code %>
+                <% } %>
+            </p>
+        <% } %>
+        <% if ( receipt.payment_processor ) { %>
+            <p><%- gettext( "Paid for via " ) %><%- receipt.payment_processor %></p>
+        <% } %>
 
         <div class="report report-receipt report-receipt-provider hidden" id="receipt-provider"></div>
 
