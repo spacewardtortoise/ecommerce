@@ -8,7 +8,7 @@ from oscar.test.newfactories import BasketFactory
 from threadlocals.threadlocals import get_current_request
 
 from ecommerce.core.tests import toggle_switch
-from ecommerce.core.url_utils import get_ecommerce_url
+from ecommerce.core.url_utils import get_ecommerce_url, get_lms_url
 from ecommerce.courses.models import Course
 from ecommerce.extensions.catalogue.tests.mixins import CourseCatalogTestMixin
 from ecommerce.extensions.checkout.signals import send_course_purchase_email

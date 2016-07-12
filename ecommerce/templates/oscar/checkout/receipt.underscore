@@ -108,13 +108,17 @@
         <% if ( verified ) { %>
             <a class="next action-primary right" href="<%- lmsUrl %>/dashboard"><%- gettext( "Go to Dashboard" ) %></a>
         <% } else { %>
-          <a id="verify_later_button" class="next action-secondary verify-later nav-link" href="<%- lmsUrl %>/dashboard">
+          <a id="verify_later_button" class="next action-secondary verify-later nav-link" href="<%- lmsUrl %>/dashboard"
+          data-track-type="click" data-track-event="edx.bi.user.verification.immediate"
+          data-track-category="verification">
             <%- gettext( "Want to confirm your identity later?" ) %>
           </a>
 
           <a id="verify_now_button"
              class="next action-primary right"
-             href="<%- lmsUrl %>/verify_student/verify-now/<%- courseKey %>/"
+             href="<%- lmsUrl %>/verify_student/verify-now/<%- courseKey %>/
+             data-track-type="click" data-track-event="edx.bi.user.verification.deferred"
+             data-track-category="verification"
           >
             <%- gettext( "Verify Now" ) %>
           </a>

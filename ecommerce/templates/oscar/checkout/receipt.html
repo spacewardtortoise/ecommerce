@@ -16,32 +16,12 @@
 
 {% block header_extras %}
     <script type="text/template" id="receipt-tpl">{% include "checkout/receipt.underscore" %}</script>
+    <script type="text/template" id="provider-tpl">{% include "checkout/provider.underscore" %}</script>
 {% endblock header_extras %}
 
 {% block content %}
 <div class="receipt">
-    <div class="provider-wrapper hidden">
-        <div class="provider-info">
-            {% blocktrans %}
-                You still need to visit the {{ display_name }} website to complete the credit process.
-            {%  endblocktrans %}
-        </div>
-        <div class="provider-more-info">
-            {% blocktrans %} To finalize course credit, {{ display_name }} requires {{ platform_name }} learners
-              to submit a credit request.
-            {%  endblocktrans %}
-        </div>
-    </div>
 
-    <div class="provider-buttons-logos hidden">
-      <div class="provider-logo">
-        <img src='{{ thumbnail_url }}' alt='{{ display_name }}' />"
-      </div>
-      <div class="complete-order">
-        <button data-provider="{{ id }}" data-course-key="{{ course_key }}" data-username="{{ name }}"
-                class="complete-course" onClick="completeOrder(this)">{% trans  "Get Credit" %}</button>
-      </div>
-    </div>
 
     <div class="container content-container">
         <div id="receipt-container" class="pay-and-verify hidden" data-is-payment-complete='${is_payment_complete}'

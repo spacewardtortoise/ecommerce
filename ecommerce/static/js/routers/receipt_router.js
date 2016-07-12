@@ -18,7 +18,6 @@ define([
             showReceiptPage: function() {
                 var page = new ReceiptPage();
                 this.currentView = page;
-                console.log(page.el);
                 this.$el.html(page.el);
             }
         });

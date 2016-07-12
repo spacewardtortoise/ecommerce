@@ -19,11 +19,10 @@ function ($, AjaxRetry, Backbone, _) {
             this.ecommerceBasketId = $.url('?basket_id');
             this.ecommerceOrderNumber = $.url('?order_number');
             this.useEcommerceApi = this.ecommerceBasketId || this.ecommerceOrderNumber;
-            _.bindAll(this, 'renderReceipt', 'renderError', 'getProviderData', 'renderProvider', 'getCourseData');
+            _.bindAll(this, 'renderReceipt', 'renderError', 'getProviderData', 'renderProvider');
         },
 
         renderReceipt: function (data) {
-            console.log(this.$el.data('verified'));
             var templateHtml = $("#receipt-tpl").html(),
                 context = {
                     platformName: this.$el.data('platform-name'),
@@ -42,8 +41,13 @@ function ($, AjaxRetry, Backbone, _) {
             });
 
             this.$el.html(_.template(templateHtml)(context));
+            this.trackLinks();
+            this.trackPurchase(data);
+            providerId = this.getCreditProviderId(data);
+            if (providerId) {
+                this.getProviderData(this.$el.data('lms-url'), providerId).then(this.renderProvider, this.renderError);
+            }
             return this;
-
         },
         renderCourseNamePlaceholder: function (courseId) {
             // Display the course Id or name (if available) in the placeholder
@@ -73,6 +77,8 @@ function ($, AjaxRetry, Backbone, _) {
             context.course_key = this.courseKey;
             context.username = this.username;
             context.platformName = this.$el.data('platform-name');
+            console.log('Provider context: ' + context);
+            console.log('Provider HTML: ' + templateHtml);
             providerDiv.html(_.template(templateHtml)(context)).removeClass('hidden');
         },
 
@@ -142,14 +148,15 @@ function ($, AjaxRetry, Backbone, _) {
         },
         /**
          * Retrieve credit provider data from LMS.
+         * @param  {string} lmsUrl The base url of the LMS instance.
          * @param  {string} providerId The providerId of the credit provider.
          * @return {object} JQuery Promise.
          */
-        getProviderData: function (providerId) {
-            var providerUrl = '/api/credit/v1/providers/{providerId}/';
+        getProviderData: function (lmsUrl, providerId) {
+            var providerBaseUrl = lmsUrl + '/api/credit/v1/providers/';
 
             return $.ajax({
-                url: edx.StringUtils.interpolate(providerUrl, {providerId: providerId}),
+                url: providerBaseUrl +  providerId,
                 type: 'GET',
                 dataType: 'json',
                 contentType: 'application/json',
@@ -157,20 +164,6 @@ function ($, AjaxRetry, Backbone, _) {
                     'X-CSRFToken': $.cookie('csrftoken')
                 }
             }).retry({times: 5, timeout: 2000, statusCodes: [404]});
-        },
-        /**
-         * Retrieve course data from LMS.
-         * @param  {string} courseId The courseId of the course.
-         * @return {object} JQuery Promise.
-         * ACTUALLY CALLED
-         */
-        getCourseData: function (courseId) {
-            var courseDetailUrl = '/api/courses/v1/courses/{courseId}/';
-            return $.ajax({
-                url: edx.StringUtils.interpolate(courseDetailUrl, {courseId: courseId}),
-                type: 'GET',
-                dataType: 'json'
-            });
         },
 
         /**
@@ -187,7 +180,7 @@ function ($, AjaxRetry, Backbone, _) {
             console.log("Order: " + JSON.stringify(order));
 
             if (this.useEcommerceApi) {
-                console.log('Case 1');
+                console.log('Using E-Commerce API');
                 receiptContext = {
                     orderNum: order.number,
                     currency: order.currency,
@@ -202,7 +195,6 @@ function ($, AjaxRetry, Backbone, _) {
                 };
 
                 if (order.billing_address) {
-                    console.log('Case 2');
                     receiptContext.billedTo = {
                         firstName: order.billing_address.first_name,
                         lastName: order.billing_address.last_name,
@@ -223,7 +215,7 @@ function ($, AjaxRetry, Backbone, _) {
                     }
                 );
             } else {
-                console.log('Case 3');
+                console.log('Not using ECommerce. CHECK WHY');
                 receiptContext = {
                     orderNum: order.orderNum,
                     currency: order.currency,
@@ -315,9 +307,45 @@ function ($, AjaxRetry, Backbone, _) {
 
             return null;
         }
+
+
     });
 
 });     // jshint ignore:line
+
+function createCreditRequest (providerId, courseKey, username) {
+    return $.ajax({
+        url: $('#receipt-container').data('lms-url') + '/api/credit/v1/providers/' + providerId + '/request/',
+        type: 'POST',
+        headers: {
+            'X-CSRFToken': $.cookie('csrftoken')
+        },
+        dataType: 'json',
+        contentType: 'application/json',
+        data: JSON.stringify({
+            'course_key': courseKey,
+            'username': username
+        }),
+        context: this,
+        success: function (requestData) {
+            var $form = $('<form>', {
+                'class': 'hidden',
+                'action': requestData.url,
+                'method': 'POST',
+                'accept-method': 'UTF-8'
+            });
+
+            _.each(requestData.parameters, function (value, key) {
+                $('<textarea>').attr({
+                    name: key,
+                    value: value
+                }).appendTo($form);
+            });
+
+            $form.appendTo('body').submit();
+        }
+    });
+}
 
 function completeOrder(event) {     // jshint ignore:line
     var courseKey = $(event).data("course-key"),
@@ -339,7 +367,7 @@ function completeOrder(event) {     // jshint ignore:line
         }
     );
 
-    edx.commerce.credit.createCreditRequest(providerId, courseKey, username).fail(function () {
+    createCreditRequest(providerId, courseKey, username).fail(function () {
         $errorContainer.removeClass("hidden");
     });
 }

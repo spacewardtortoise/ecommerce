@@ -170,10 +170,13 @@ class OrderSerializer(serializers.ModelSerializer):
     payment_processor = serializers.SerializerMethodField()
     shipping_address = serializers.SerializerMethodField()
 
-    def get_vouchers(self, obj):
-        vouchers = [voucher for voucher in obj.basket.vouchers.all()]
-        serializer = VoucherSerializer(vouchers, many=True, context={'request': self.context['request']})
-        return serializer.data
+    def get_vouchers(self, obj): #if basket
+        try:
+            vouchers = [voucher for voucher in obj.basket.vouchers.all()]
+            serializer = VoucherSerializer(vouchers, many=True, context={'request': self.context['request']})
+            return serializer.data
+        except AttributeError:
+            return None
 
     def get_payment_processor(self, obj):
         try:
