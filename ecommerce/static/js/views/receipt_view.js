@@ -23,7 +23,7 @@ function ($, AjaxRetry, Backbone, _) {
         },
 
         renderReceipt: function (data) {
-            var templateHtml = $("#receipt-tpl").html(),
+            var templateHtml = $('#receipt-tpl').html(),
                 context = {
                     platformName: this.$el.data('platform-name'),
                     verified: this.$el.data('verified') === 'true',
@@ -51,29 +51,16 @@ function ($, AjaxRetry, Backbone, _) {
         },
         renderCourseNamePlaceholder: function (courseId) {
             // Display the course Id or name (if available) in the placeholder
-            var $courseNamePlaceholder = $(".course_name_placeholder");
+            var $courseNamePlaceholder = $('.course_name_placeholder');
             $courseNamePlaceholder.text(courseId);
 
             this.getCourseData(courseId).then(function (responseData) {
                 $courseNamePlaceholder.text(responseData.name);
             });
         },
-        // ACTUALLY CALLED
-        renderUserFullNamePlaceholder: function (username) {
-            var userModel = Backbone.Model.extend({
-              urlRoot: '/api/user/v1/accounts/',
-                url: function() {
-                    return this.urlRoot + this.id;
-                }
-            });
-            this.user = new userModel({id:username});
-            this.user.fetch({success: function(userData) {
-                $(".full_name_placeholder").text(userData.get('name'));
-            }});
-        },
         renderProvider: function (context) {
-            var templateHtml = $("#provider-tpl").html(),
-                providerDiv = this.$el.find("#receipt-provider");
+            var templateHtml = $('#provider-tpl').html(),
+                providerDiv = this.$el.find('#receipt-provider');
             context.course_key = this.courseKey;
             context.username = this.username;
             context.platformName = this.$el.data('platform-name');
@@ -88,7 +75,7 @@ function ($, AjaxRetry, Backbone, _) {
         },
 
         trackPurchase: function (order) {
-            window.analytics.track("Completed Order", {
+            window.analytics.track('Completed Order', {
                 orderId: order.number,
                 total: order.total_excl_tax,
                 currency: order.currency
@@ -177,7 +164,7 @@ function ($, AjaxRetry, Backbone, _) {
             var self = this,
                 receiptContext;
 
-            console.log("Order: " + JSON.stringify(order));
+            console.log('Order: ' + JSON.stringify(order));
 
             if (this.useEcommerceApi) {
                 console.log('Using E-Commerce API');
@@ -202,7 +189,7 @@ function ($, AjaxRetry, Backbone, _) {
                         state: order.billing_address.state,
                         postalCode: order.billing_address.postcode,
                         country: order.billing_address.country
-                    }
+                    };
                 }
 
                 receiptContext.items = _.map(
@@ -221,7 +208,7 @@ function ($, AjaxRetry, Backbone, _) {
                     currency: order.currency,
                     purchasedDatetime: order.purchase_datetime,
                     totalCost: self.formatMoney(order.total_cost),
-                    isRefunded: order.status === "refunded",
+                    isRefunded: order.status === 'refunded',
                     billedTo: {
                         firstName: order.billed_to.first_name,
                         lastName: order.billed_to.last_name,
@@ -264,8 +251,8 @@ function ($, AjaxRetry, Backbone, _) {
                         });
 
                     // This method assumes that all items in the order are related to a single course.
-                    if (attributeValues != undefined) {
-                        return attributeValues['value'];
+                    if (attributeValues !== undefined) {
+                        return attributeValues.value;
                     }
                 }
             } else {
@@ -300,8 +287,8 @@ function ($, AjaxRetry, Backbone, _) {
                 });
 
                 // This method assumes that all items in the order are related to a single course.
-                if (attributeValues != undefined) {
-                    return attributeValues['value'];
+                if (attributeValues !== undefined) {
+                    return attributeValues.value;
                 }
             }
 
@@ -314,6 +301,8 @@ function ($, AjaxRetry, Backbone, _) {
 });     // jshint ignore:line
 
 function createCreditRequest (providerId, courseKey, username) {
+    'use strict';
+
     return $.ajax({
         url: $('#receipt-container').data('lms-url') + '/api/credit/v1/providers/' + providerId + '/request/',
         type: 'POST',
@@ -348,10 +337,12 @@ function createCreditRequest (providerId, courseKey, username) {
 }
 
 function completeOrder(event) {     // jshint ignore:line
-    var courseKey = $(event).data("course-key"),
-        username = $(event).data("username"),
-        providerId = $(event).data("provider"),
-        $errorContainer = $("#error-container");
+    'use strict';
+
+    var courseKey = $(event).data('course-key'),
+        username = $(event).data('username'),
+        providerId = $(event).data('provider'),
+        $errorContainer = $('#error-container');
 
     try {
         event.preventDefault();
@@ -360,14 +351,14 @@ function completeOrder(event) {     // jshint ignore:line
     }
 
     analytics.track(
-        "edx.bi.credit.clicked_complete_credit",
+        'edx.bi.credit.clicked_complete_credit',
         {
-            category: "credit",
+            category: 'credit',
             label: courseKey
         }
     );
 
     createCreditRequest(providerId, courseKey, username).fail(function () {
-        $errorContainer.removeClass("hidden");
+        $errorContainer.removeClass('hidden');
     });
 }
