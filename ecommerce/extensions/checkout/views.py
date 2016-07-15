@@ -7,10 +7,9 @@ import logging
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext as _
-from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import RedirectView, TemplateView
 from oscar.apps.checkout.views import *  # pylint: disable=wildcard-import, unused-wildcard-import
 from oscar.core.loading import get_class, get_model
@@ -67,7 +66,7 @@ class CancelResponseView(RedirectView):
         basket = get_object_or_404(Basket, id=kwargs['basket_id'],
                                    status=Basket.FROZEN)
         basket.thaw()
-        logger.info('Payment for basket [%d] was cancelled. Transaction ID is [%s]. ',
+        logger.info('Payment for basket [%s] was cancelled. Transaction ID is [%s]. ',
                     request.GET.get('token', '<no token>'), basket.id)
         return super(CancelResponseView, self).get(request, *args, **kwargs)
 
@@ -117,7 +116,9 @@ class ReceiptResponseView(ThankYouView):
             page_title = _('Payment Failed')
             error_summary = _("A system error occurred while processing your payment. You have not been charged.")
             error_text = _("Please wait a few minutes and then try again.")
-            for_help_text = _("For help, contact {payment_support_link}.").format(payment_support_link=payment_support_link)
+            for_help_text = _(
+                "For help, contact {payment_support_link}."
+            ).format(payment_support_link=payment_support_link)
         else:
             # if anything goes wrong rendering the receipt, it indicates a problem fetching order data.
             error_summary = _("An error occurred while creating your receipt.")
@@ -130,7 +131,7 @@ class ReceiptResponseView(ThankYouView):
             'page_title': page_title,
             'is_payment_complete': is_payment_complete,
             'platform_name': settings.PLATFORM_NAME,
-            # Need an LMS endpoint! 'verified': SoftwareSecurePhotoVerification.verification_valid_or_pending(request.user).exists(),
+            # Need an LMS endpoint! 'verified': SoftwareSecurePhotoVerification,
             'error_summary': error_summary,
             'error_text': error_text,
             'for_help_text': for_help_text,
