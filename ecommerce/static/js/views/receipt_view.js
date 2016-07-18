@@ -3,10 +3,11 @@ define([
         'jquery-ajax-retry',
         'backbone',
         'underscore',
+        'currency-symbol',
         'bootstrap',
         'jquery-url'
     ],
-function ($, AjaxRetry, Backbone, _) {
+function ($, AjaxRetry, Backbone, _, Currency) {
     'use strict';
 
     return Backbone.View.extend({
@@ -28,7 +29,6 @@ function ($, AjaxRetry, Backbone, _) {
                     platformName: this.$el.data('platform-name'),
                     verified: this.$el.data('verified') === 'true',
                     lmsUrl: this.$el.data('lms-url')
-                    // is_request_in_themed_site: this.$el.data('is-request-in-themed-site').toLowerCase() === 'true'
                 },
                 providerId;
 
@@ -40,6 +40,7 @@ function ($, AjaxRetry, Backbone, _) {
                 courseKey: this.courseKey
             });
 
+            this.getPartnerData(data).then(this.renderPartner, this.renderError);
             this.$el.html(_.template(templateHtml)(context));
             this.trackLinks();
             this.trackPurchase(data);
@@ -48,6 +49,9 @@ function ($, AjaxRetry, Backbone, _) {
                 this.getProviderData(this.$el.data('lms-url'), providerId).then(this.renderProvider, this.renderError);
             }
             return this;
+        },
+        renderPartner: function (data){
+          $('.partner').text(data.short_code);
         },
         renderCourseNamePlaceholder: function (courseId) {
             // Display the course Id or name (if available) in the placeholder
@@ -100,7 +104,7 @@ function ($, AjaxRetry, Backbone, _) {
                 $verifyLaterButton = $('#verify_later_button');
 
             // Track a virtual pageview, for easy funnel reconstruction.
-            window.analytics.page('payment', 'receipt');
+            // window.analytics.page('payment', 'receipt');
 
             // Track the user's decision to verify immediately
             window.analytics.trackLink($verifyNowButton, 'edx.bi.user.verification.immediate', {
@@ -154,6 +158,23 @@ function ($, AjaxRetry, Backbone, _) {
         },
 
         /**
+         * Retrieve partner data from Otto.
+         * @param  {string} order The order whose partner to retrieve.
+         * @return {object} JQuery Promise.
+         */
+        getPartnerData: function (order) {
+            console.log('input ' + JSON.stringify(order));
+            var partnerId = order.lines[0].product.stockrecords[0].partner;
+            console.debug('partner id: ' + partnerId);
+            return $.ajax({
+                url: '/api/v2/partners/' +  partnerId + '/',
+                type: 'GET',
+                dataType: 'json',
+                contentType: 'application/json',
+            }).retry({times: 5, timeout: 2000, statusCodes: [404]});
+        },
+
+        /**
          * Construct the template context from data received
          * from the E-Commerce API.
          *
@@ -170,16 +191,26 @@ function ($, AjaxRetry, Backbone, _) {
                 console.log('Using E-Commerce API');
                 receiptContext = {
                     orderNum: order.number,
-                    currency: order.currency,
+                    currency: Currency.symbolize(order.currency),
                     email: order.user.email,
                     vouchers: order.vouchers,
                     payment_processor: order.payment_processor,
+                    shipping_address: order.shipping_address,
                     purchasedDatetime: order.date_placed,
                     totalCost: self.formatMoney(order.total_excl_tax),
+                    //partner: self.getPartnerShortCode(order.lines[0].product.stockrecords[0].partner),
                     isRefunded: false,
                     items: [],
                     billedTo: null
                 };
+                // self.getPartnerShortCode(order.lines[0].product.stockrecords[0].partner).done(function (data) {
+                //     console.log('Data: ' + JSON.stringify(data));
+                //     receiptContext.partner = data.short_code;
+                //     console.log('partner result1: ' + JSON.stringify(receiptContext.partner));
+                // });
+                //
+                // console.log('partner result: ' + JSON.stringify(receiptContext.partner));
+
 
                 if (order.billing_address) {
                     receiptContext.billedTo = {
@@ -197,7 +228,8 @@ function ($, AjaxRetry, Backbone, _) {
                     function (line) {
                         return {
                             lineDescription: line.description,
-                            cost: self.formatMoney(line.line_price_excl_tax)
+                            cost: self.formatMoney(line.line_price_excl_tax),
+                            quantity: line.quantity
                         };
                     }
                 );
@@ -205,7 +237,7 @@ function ($, AjaxRetry, Backbone, _) {
                 console.log('Not using ECommerce. CHECK WHY');
                 receiptContext = {
                     orderNum: order.orderNum,
-                    currency: order.currency,
+                    currency: Currency.symbolize(order.currency),
                     purchasedDatetime: order.purchase_datetime,
                     totalCost: self.formatMoney(order.total_cost),
                     isRefunded: order.status === 'refunded',
@@ -230,7 +262,7 @@ function ($, AjaxRetry, Backbone, _) {
                     }
                 );
             }
-
+            console.log('Final receipt context: ' + JSON.stringify(receiptContext));
             return receiptContext;
         },
 

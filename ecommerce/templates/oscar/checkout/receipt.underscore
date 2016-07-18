@@ -1,6 +1,6 @@
 <div class="wrapper-content-main payment-confirmation-step">
   <article class="content-main">
-    <h3 class="title">
+    <h3 class="thank-you">
       <%= gettext( "Thank you!" ) %>
     </h3>
 
@@ -8,18 +8,43 @@
     <div class="list-info">
       <div class="info-item payment-info">
         <div class="copy">
-        <p><%- gettext( "Your order was processed successfully. Print this page for your records; it serves as your \
-        receipt. You will also receive a confirmation email with the same information at ") %>
-        <a class="nav-link" href="mailto:<%- receipt.email %>"><%- receipt.email %></a>.</p>
+        <div class="confirm-message"><%= gettext( "Your order was processed successfully. Print this page for your \
+        records; it serves as your receipt. You will also receive a confirmation email with the same information at") %>
+        <a class="nav-link" href="mailto:<%- receipt.email %>"><%- receipt.email %></a>.</div>
+        <% if ( receipt.billedTo ) { %>
+            <div class="copy">
+              <p><%- gettext( "Billed to:" ) %>:
+                  <span class="name-first"><%- receipt.billedTo.firstName %></span>
+                  <span class="name-last"><%- receipt.billedTo.lastName %></span>
+                  (<span class="address-city"><%- receipt.billedTo.city %></span>,
+                  <span class="address-state"><%- receipt.billedTo.state %></span>
+                  <span class="address-postalcode"><%- receipt.billedTo.postalCode %></span>
+                  <span class="address-country"><%- receipt.billedTo.country.toUpperCase() %></span>)
+              </p>
+            </div>
+        <% }  else if ( receipt.shipping_address ) { %>
+            <div class="shipping-address"><address>
+            <% for ( var i = 0; i < receipt.shipping_address.length; i++ ) { %>
+                  <%- receipt.shipping_address[i] %> <br/>
+                <% } %>
+            </address></div>
+        <% } %>
+        </div>
+
+        <div class="order-summary">
+            <%= gettext( "Order Number" ) %>:
+            <div class="order-info"><%- receipt.orderNum %></div>
+            <%= gettext( "Order Date" ) %>:
+            <div class="order-info"><%- receipt.purchasedDatetime %></div>
+            </div>
         </div>
 
         <div class="wrapper-report">
-          <table class="table table-striped table-bordered">
-            <thead>
+          <table class="table">
+            <thead class="order-columns">
               <tr>
-                <th scope="col" ><%- gettext( "Order No." ) %></th>
+                <th scope="col" ><%- gettext( "Qty" ) %></th>
                 <th scope="col" ><%- gettext( "Description" ) %></th>
-                <th scope="col" ><%- gettext( "Date" ) %></th>
                 <th scope="col" ><%- gettext( "Amount" ) %></th>
               </tr>
             </thead>
@@ -27,28 +52,28 @@
             <tbody>
               <% for ( var i = 0; i < receipt.items.length; i++ ) { %>
                 <% if ( receipt.isRefunded ) { %>
-                  <td><del><%- receipt.orderNum %></del></td>
-                  <td><del><%- receipt.items[i].lineDescription %></del></td>
-                  <td><del><%- receipt.purchasedDatetime %></del></td>
-                  <td><del><%- receipt.items[i].cost %> (<%- receipt.currency.toUpperCase() %>)</del></td>
+                  <tr  class="order-line-data">
+                  <td class="order-line-data"><del><%- receipt.items[i].quantity %></del></td>
+                  <td class="order-line-data"><del><%- receipt.items[i].lineDescription %>:
+                  <div class="partner"></div></del></td>
+                  <td class="order-line-data"><del><%- receipt.currency %><%- receipt.items[i].cost %></del></td>
+                  </tr>
                 <% } else { %>
-                  <tr>
-                    <td><%- receipt.orderNum %></td>
-                    <td><%- receipt.items[i].lineDescription %></td>
-                    <td><%- receipt.purchasedDatetime %></td>
-                    <td><%- receipt.items[i].cost %> (<%- receipt.currency.toUpperCase() %>)</td>
+                  <tr class="order-line-data">
+                    <td><%- receipt.items[i].quantity %></td>
+                    <td><%- receipt.items[i].lineDescription %>:<div class="partner">
+                    </div></td>
+                    <td><%- receipt.currency %><%- receipt.items[i].cost %></td>
                   </tr>
                 <% } %>
               <% } %>
             </tbody>
 
             <tfoot>
-              <tr>
-                <th scope="row" class="total-label"><%- gettext( "Total" ) %></th>
+              <tr class="order-total">
                 <td colspan="2"></td>
-                <td class="total-value">
-                  <span class="value-amount"><%- receipt.totalCost %></span>
-                   <span class="value-currency">(<%- receipt.currency.toUpperCase() %>)</span>
+                <td class="total-value"> <%- gettext( "Total: " ) %>
+                  <%- receipt.currency %><span class="value-amount"><%- receipt.totalCost %></span>
                 </td>
               </tr>
             </tfoot>
@@ -63,27 +88,6 @@
           </div>
           <% } %>
         </div>
-
-        <% if ( receipt.billedTo ) { %>
-            <div class="copy">
-              <p><%- gettext( "Billed to:" ) %>:
-                  <span class="name-first"><%- receipt.billedTo.firstName %></span>
-                  <span class="name-last"><%- receipt.billedTo.lastName %></span>
-                  (<span class="address-city"><%- receipt.billedTo.city %></span>,
-                  <span class="address-state"><%- receipt.billedTo.state %></span>
-                  <span class="address-postalcode"><%- receipt.billedTo.postalCode %></span>
-                  <span class="address-country"><%- receipt.billedTo.country.toUpperCase() %></span>)
-              </p>
-            </div>
-        <% }  else if ( receipt.shipping_address ) { %>
-            <address>
-            <% for ( var i = 0; i < receipt.shipping_address.length; i++ ) { %>
-                  <%- receipt.shipping_address[i] %> <br/>
-                <% } %>
-            </address>
-        <% } else { %>
-            <p><%- gettext( "No shipping address required." ) %></p>
-        <% } %>
 
         <% if ( receipt.vouchers.length > 0 ) { %>
             <p><%- gettext( "Codes applied" ) %>:

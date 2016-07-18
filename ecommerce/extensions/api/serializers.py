@@ -186,9 +186,11 @@ class OrderSerializer(serializers.ModelSerializer):
 
     def get_shipping_address(self, obj):
         try:
-            if obj.shipping_address.phone_number:
-                return obj.shipping_address.active_address_fields() + [obj.shipping_address.phone_number]
-            return obj.shipping_address.active_address_fields()
+            shipping_address = obj.shipping_address
+            relevant_address_fields = [shipping_address.salutation, shipping_address.line1, shipping_address.line2,
+                              shipping_address.line3, '{0}, {1} {2}'.format(shipping_address.city, shipping_address.state,
+                              shipping_address.postcode), shipping_address.phone_number]
+            return [field for field in relevant_address_fields if field]
         except AttributeError:
             return None
 

@@ -356,7 +356,7 @@ class PaymentMixin(object):
         actual = [cell.text for cell in cells]
         self.assertListEqual(actual, expected)
 
-        # Confirm the thank you message is not broken (ref: WL-466 + edx/edx-platform#12476)
+        # Confirm the thank you message is not broken (ref: WL-466 + edx/edx-platform#12476) CHANGE
         css_selector = 'span.course_name_placeholder'
         course_name_placeholder_text = self.browser.find_elements_by_css_selector(css_selector)[0].text
         title = line['product']['title']
