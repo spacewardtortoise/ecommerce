@@ -10,6 +10,7 @@ require.config({
         'bootstrap': 'bower_components/bootstrap-sass/assets/javascripts/bootstrap',
         'bootstrap_accessibility': 'bower_components/bootstrapaccessibilityplugin/plugins/js/bootstrap-accessibility',
         'collections': 'js/collections',
+        'currency-symbol': 'bower_components/currency-symbol.js/currency',
         'datatables.net': 'bower_components/datatables/media/js/jquery.dataTables',
         'dataTablesBootstrap': 'bower_components/datatables/media/js/dataTables.bootstrap',
         'ecommerce': 'js/shims/ecommerce',
