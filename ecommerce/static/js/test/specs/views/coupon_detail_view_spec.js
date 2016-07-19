@@ -35,16 +35,27 @@ define([
                 verifiedSeat = Mock_Coupons.verifiedSeat;
             });
 
-            it('should get code status from coupon model', function () {
-                expect(view.model.get('code_status')).toBe(model.get('code_status'));
+            it('should compare view.model with model sent', function () {
+                expect(view.model).toBe(model);
             });
 
-            it('should get coupon type from coupon model', function () {
-                expect(view.model.get('coupon_type')).toBe(model.get('coupon_type'));
+            it('should get discount value from voucher data', function () {
+                expect(view.discountValue()).toBe('100%');
+                view.model.set({'benefit_type': 'Absolute', 'benefit_value': 12.0});
+                expect(view.discountValue()).toBe('$12');
             });
 
-            it('should get discount value from coupon model', function () {
-                expect(view.model.get('discount_value')).toBe(model.get('discount_value'));
+            it('should get usage limitation from voucher data', function () {
+                expect(view.usageLimitation()).toBe('Can be used once by one customer');
+
+                view.model.set('voucher_type', 'Once per customer');
+                expect(view.usageLimitation()).toBe('Can be used once by multiple customers');
+
+                view.model.set('voucher_type', 'Multi-use');
+                expect(view.usageLimitation()).toBe('Can be used multiple times by multiple customers');
+
+                view.model.set('voucher_type', '');
+                expect(view.usageLimitation()).toBe('');
             });
 
             it('should format date time as MM/DD/YYYY h:mm A', function () {
@@ -53,10 +64,6 @@ define([
 
             it('should format last edit data', function () {
                 expect(view.formatLastEditedData(lastEditData)).toBe('user - 01/15/2016 7:26 AM');
-            });
-
-            it('should get usage limitation from coupon model', function () {
-                expect(view.model.get('usage_limitation')).toBe(model.get('usage_limitation'));
             });
 
             it('should format tax deducted source value.', function() {
@@ -75,7 +82,7 @@ define([
                     view.formatLastEditedData(model.get('last_edited'))
                 );
                 expect(view.$('.category > .value').text()).toEqual(category);
-                expect(view.$('.discount-value > .value').text()).toEqual(model.get('discount_value'));
+                expect(view.$('.discount-value > .value').text()).toEqual(view.discountValue());
                 expect(view.$('.course-info > .value').contents().get(0).nodeValue).toEqual(
                     'course-v1:edX+DemoX+Demo_Course'
                 );
@@ -86,7 +93,7 @@ define([
                 expect(view.$('.end-date-info > .value').text()).toEqual(
                     view.formatDateTime(model.get('end_date'))
                 );
-                expect(view.$('.usage-limitations > .value').text()).toEqual(model.get('usage_limitation'));
+                expect(view.$('.usage-limitations > .value').text()).toEqual(view.usageLimitation());
                 expect(view.$('.client-info > .value').text()).toEqual(model.get('client'));
                 expect(view.$('.invoiced-amount > .value').text()).toEqual(
                     _s.sprintf('$%s', model.get('price'))

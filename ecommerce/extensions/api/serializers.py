@@ -436,9 +436,9 @@ class CouponSerializer(ProductPaymentInfoMixin, serializers.ModelSerializer):
     catalog_query = serializers.SerializerMethodField()
     categories = CategorySerializer(many=True, read_only=True)
     client = serializers.SerializerMethodField()
+    code = serializers.SerializerMethodField()
     code_status = serializers.SerializerMethodField()
     course_seat_types = serializers.SerializerMethodField()
-    discount_value = serializers.SerializerMethodField()
     end_date = serializers.SerializerMethodField()
     last_edited = serializers.SerializerMethodField()
     max_uses = serializers.SerializerMethodField()
@@ -449,7 +449,6 @@ class CouponSerializer(ProductPaymentInfoMixin, serializers.ModelSerializer):
     seats = serializers.SerializerMethodField()
     start_date = serializers.SerializerMethodField()
     voucher_type = serializers.SerializerMethodField()
-    usage_limitation = serializers.SerializerMethodField()
 
     def retrieve_benefit(self, obj):
         """Helper method to retrieve the benefit from voucher. """
@@ -494,6 +493,9 @@ class CouponSerializer(ProductPaymentInfoMixin, serializers.ModelSerializer):
     def get_client(self, obj):
         return Invoice.objects.get(order__basket__lines__product=obj).business_client.name
 
+    def get_code(self, obj):
+        return self.retrieve_voucher(obj).code
+
     def get_code_status(self, obj):
         start_date = self.retrieve_start_date(obj)
         end_date = self.retrieve_end_date(obj)
@@ -505,12 +507,6 @@ class CouponSerializer(ProductPaymentInfoMixin, serializers.ModelSerializer):
         offer = self.retrieve_offer(obj)
         course_seat_types = offer.condition.range.course_seat_types
         return course_seat_types.split(',') if course_seat_types else course_seat_types
-
-    def get_discount_value(self, obj):
-        benefit = self.retrieve_benefit(obj)
-        benefit_type = benefit.type
-        benefit_value = str(benefit.value).rstrip('0').rstrip('.')
-        return '{}%'.format(benefit_value) if (benefit_type == Benefit.PERCENTAGE) else '${}'.format(benefit_value)
 
     def get_end_date(self, obj):
         return self.retrieve_end_date(obj)
@@ -568,24 +564,14 @@ class CouponSerializer(ProductPaymentInfoMixin, serializers.ModelSerializer):
     def get_voucher_type(self, obj):
         return self.retrieve_voucher_usage(obj)
 
-    def get_usage_limitation(self, obj):
-        voucher_usage = self.retrieve_voucher_usage(obj)
-        if voucher_usage == 'Single use':
-            return _('Can be used once by one customer')
-        elif voucher_usage == 'Multi-use':
-            return _('Can be used multiple times by multiple customers')
-        elif voucher_usage == 'Once per customer':
-            return _('Can be used once by multiple customers')
-        return ''
-
     class Meta(object):
         model = Product
         fields = (
             'benefit_type', 'benefit_value', 'catalog_query', 'categories',
-            'client', 'code_status', 'coupon_type', 'course_seat_types',
-            'discount_value', 'end_date', 'id', 'last_edited', 'max_uses',
-            'note', 'num_uses', 'payment_information', 'price', 'quantity',
-            'seats', 'start_date', 'title', 'voucher_type', 'usage_limitation',
+            'client', 'code', 'code_status', 'coupon_type', 'course_seat_types',
+            'end_date', 'id', 'last_edited', 'max_uses', 'note',
+            'num_uses', 'payment_information', 'price', 'quantity',
+            'seats', 'start_date', 'title', 'voucher_type'
         )
 
 

@@ -32,7 +32,12 @@ define([
             formatLastEditedData: function(last_edited) {
                 return _s.sprintf('%s - %s', last_edited[0], this.formatDateTime(last_edited[1]));
             },
- 
+
+            discountValue: function() {
+                var stringFormat = (this.model.get('benefit_type') === 'Percentage') ? '%u%%' : '$%u';
+                return _s.sprintf(stringFormat, this.model.get('benefit_value'));
+            },
+
             taxDeductedSource: function(value) {
                 if (value) {
                     return _s.sprintf('%u%%', parseInt(value));
@@ -87,6 +92,18 @@ define([
                 }
             },
 
+            usageLimitation: function() {
+                var voucherType = this.model.get('voucher_type');
+                if (voucherType === 'Single use') {
+                    return gettext('Can be used once by one customer');
+                } else if (voucherType === 'Multi-use') {
+                    return gettext('Can be used multiple times by multiple customers');
+                } else if (voucherType === 'Once per customer') {
+                    return gettext('Can be used once by multiple customers');
+                }
+                return '';
+            },
+
             render: function () {
                 var html,
                     category = this.model.get('categories')[0].name,
@@ -94,13 +111,15 @@ define([
                     template_data;
 
                 template_data = {
+                    category: category,
                     coupon: this.model.toJSON(),
-                    startDateTime: this.formatDateTime(this.model.get('start_date')),
+                    courseSeatType: this.formatSeatTypes(),
+                    discountValue: this.discountValue(),
                     endDateTime: this.formatDateTime(this.model.get('end_date')),
                     lastEdited: this.formatLastEditedData(this.model.get('last_edited')),
                     price: _s.sprintf('$%s', this.model.get('price')),
-                    category: category,
-                    courseSeatType: this.formatSeatTypes()
+                    startDateTime: this.formatDateTime(this.model.get('start_date')),
+                    usage: this.usageLimitation()
                 };
 
                 $.extend(template_data, invoice_data);

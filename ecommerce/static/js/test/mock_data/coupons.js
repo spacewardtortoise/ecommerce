@@ -72,10 +72,8 @@ define([], function(){
             true,
             ''
         ],
-        'benefit': {
-            'type': 'Absolute',
-            'value': 12.0
-        }
+        'benefit_type': 'Absolute',
+        'benefit_value': 12.0
     },
     verifiedSeat = {
         id: 9,
@@ -164,8 +162,8 @@ define([], function(){
         'start_date': '2015-01-01T00:00:00Z',
         'end_date': '2016-01-01T00:00:00Z',
         'voucher_type': 'Single use',
-        benefit_type: 'Percentage',
-        benefit_value: 25
+        'benefit_type': 'Percentage',
+        'benefit_value': 25
     },
     discountCodeCouponModelData = {
         title: 'Test Discount',
@@ -210,8 +208,8 @@ define([], function(){
         'voucher_type': 'Single use',
         'code_status': 'ACTIVE',
         'coupon_type': 'Enrollment Code',
-        'discount_value': '100%',
-        'usage_limitation': 'Can be used once by one customer'
+        'benefit_type': 'Percentage',
+        'benefit_value': 100
     },
     enrollmentCodeCouponModelData = {
         title: 'Test Enrollment',
