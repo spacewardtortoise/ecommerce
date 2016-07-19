@@ -1,5 +1,7 @@
 from factory.django import mute_signals
 from django.core.urlresolvers import reverse
+from django.core.management import call_command
+from django.core.management.base import CommandError
 
 from oscar.test import factories
 from oscar.core.loading import get_class, get_model
@@ -57,3 +59,18 @@ class TestOrdersWithMultiplePaymentsCommand(CybersourceMixin, PaymentEventsMixin
         response.id += 1
         response.save()
         self.assertEquals(Command.number_of_payments_for_order(order), 2)
+
+    def test_command_handler(self):
+        """
+        Tests the processing of main command handler
+        """
+        with self.assertRaises(CommandError) as exception:
+            call_command('orders_with_multiple_payments')
+            self.assertEqual(exception.message, "Required arguments `Start Date` and `End Date` are missing.")
+        with self.assertRaises(CommandError) as exception:
+            call_command('orders_with_multiple_payments', '01-02-2016', '01-01-2016')
+            self.assertEqual(exception.message, "Argument `Start Date` must be less than `End Date`.")
+        with self.assertRaises(CommandError) as exception:
+            call_command('orders_with_multiple_payments', '2016-02-01', '01-01-2016')
+            self.assertEqual(exception.message, "Start Date was not specified or specified correctly in args 'd-m-y'.")
+        call_command('orders_with_multiple_payments', '01-01-2016', '01-02-2016')

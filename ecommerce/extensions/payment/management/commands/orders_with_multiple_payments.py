@@ -21,7 +21,7 @@ class Command(BaseCommand):
         """
         try:
             return datetime.datetime.strptime(args.pop(0), '%d-%m-%Y')
-        except IndexError:
+        except ValueError:
             raise CommandError("{} was not specified or specified correctly in args 'd-m-y'.".format(variable_name))
 
     def handle(self, *args, **options):
