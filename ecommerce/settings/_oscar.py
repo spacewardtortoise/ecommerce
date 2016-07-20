@@ -105,7 +105,7 @@ PAYMENT_PROCESSORS = (
 )
 
 PAYMENT_PROCESSOR_RECEIPT_PATH = '/commerce/checkout/receipt/'
-PAYMENT_PROCESSOR_CANCEL_PATH = '/commerce/checkout/cancel/'
+PAYMENT_PROCESSOR_CANCEL_PATH = '/checkout/cancel/'
 PAYMENT_PROCESSOR_ERROR_PATH = '/commerce/checkout/error/'
 
 PAYMENT_PROCESSOR_CONFIG = {

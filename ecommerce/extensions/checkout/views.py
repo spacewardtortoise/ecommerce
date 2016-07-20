@@ -8,7 +8,7 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.utils.decorators import method_decorator
-from django.views.generic import RedirectView
+from django.views.generic import RedirectView, TemplateView
 from oscar.apps.checkout.views import *  # pylint: disable=wildcard-import, unused-wildcard-import
 from oscar.core.loading import get_class, get_model
 
@@ -52,3 +52,18 @@ class FreeCheckoutView(EdxOrderPlacementMixin, RedirectView):
             # page which displays the appropriate message for empty baskets.
             url = reverse('basket:summary')
         return url
+
+class CancelResponseView(TemplateView):
+    """ Displays a cancellation message when the customer cancels checkout on the payment processor page. """
+
+    template_name = 'checkout/cancel.html'
+
+    def get_context_data(self, **kwargs):
+        """
+        Currently, only collects support email; more information may be needed later based on page design.
+        """
+        context = super(CancelResponseView, self).get_context_data(**kwargs)
+        context.update({
+            'payment_support_email': settings.PAYMENT_SUPPORT_EMAIL,
+        })
+        return context
