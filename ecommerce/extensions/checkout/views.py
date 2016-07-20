@@ -53,16 +53,17 @@ class FreeCheckoutView(EdxOrderPlacementMixin, RedirectView):
             url = reverse('basket:summary')
         return url
 
-class CancelResponseView(TemplateView):
+
+class CancelCheckoutView(TemplateView):
     """ Displays a cancellation message when the customer cancels checkout on the payment processor page. """
 
-    template_name = 'checkout/cancel.html'
+    template_name = 'checkout/cancel_checkout.html'
 
     def get_context_data(self, **kwargs):
         """
         Currently, only collects support email; more information may be needed later based on page design.
         """
-        context = super(CancelResponseView, self).get_context_data(**kwargs)
+        context = super(CancelCheckoutView, self).get_context_data(**kwargs)
         context.update({
             'payment_support_email': settings.PAYMENT_SUPPORT_EMAIL,
         })
