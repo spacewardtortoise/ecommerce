@@ -19,16 +19,19 @@
     }
 
     .content-container {
-        padding: 30px 30px 40px;
+        padding: 15px 30px 40px;
     }
 
     .copy {
         float: left;
-        font-weight: 300;
         width: 60%;
         > div {
             margin-bottom: 15px;
             line-height: 22px;
+        }
+
+        .shipping-address {
+            margin-bottom: 35px;
         }
     }
 
@@ -51,17 +54,21 @@
         padding: 15px 20px;
     }
 
-    //.order-number {
-    //    color: rgb(0, 121, 188);
-    //    font-size: 22px;
-    //}
+    .order-amount {
+        width: 10%;
+    }
 
     .order-columns {
         background-color: rgb(249, 249, 249);
-        border-width: 1px;
-        border-color: rgb(235, 235, 235);
+        //border-width: 1px;
+        //border-color: rgb(235, 235, 235);
         color: #000;
         font-size: 1em;
+    }
+    .order-headers {
+        color: rgb(0, 121, 188);
+        font-size: 22px;
+        font-weight: 500;
     }
 
     .order-info {
@@ -77,9 +84,7 @@
     }
 
     .order-summary {
-        color: rgb(0, 121, 188);
         float: left;
-        font-size: 22px;
         padding-left: 60px;
         width: 40%;
     }
@@ -119,6 +124,26 @@
         margin: 0 0 15px;
     }
 
+
+    .table tr {
+        > td, > th {
+            border-left: 2px solid rgb(235, 235, 235);
+            padding-left: 1.25em;
+        }
+
+        td:first-child, th:first-child {
+            border-left: none;
+        }
+
+        .total-value {
+            color: rgb(51, 122, 183);
+            float: right;
+            font-size: 22px;
+            font-weight: 700;
+            width: 14%;
+        }
+    }
+
     .thank-you {
         //border-bottom: 1px solid #b1b2b4;
         //color: #1790c7;
@@ -130,9 +155,7 @@
         margin-bottom: 10px;
     }
 
-    .total-value {
-        color: rgb(51, 122, 183);
-        font-size: 22px;
-        font-weight: bold;
+    .wrapper-content-main {
+        margin-bottom: 20px;
     }
 }

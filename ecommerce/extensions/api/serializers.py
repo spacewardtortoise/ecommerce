@@ -169,6 +169,7 @@ class OrderSerializer(serializers.ModelSerializer):
     vouchers = serializers.SerializerMethodField()
     payment_processor = serializers.SerializerMethodField()
     shipping_address = serializers.SerializerMethodField()
+    discount = serializers.SerializerMethodField()
 
     def get_vouchers(self, obj):
         try:
@@ -189,15 +190,22 @@ class OrderSerializer(serializers.ModelSerializer):
             shipping_address = obj.shipping_address
             relevant_address_fields = [shipping_address.salutation, shipping_address.line1, shipping_address.line2,
                               shipping_address.line3, '{0}, {1} {2}'.format(shipping_address.city, shipping_address.state,
-                              shipping_address.postcode), shipping_address.phone_number]
+                              shipping_address.postcode), shipping_address.country_id, shipping_address.phone_number]
             return [field for field in relevant_address_fields if field]
         except AttributeError:
+            return None
+
+    def get_discount(self, obj):
+        discounts = obj.discounts.all()
+        try:
+            return str(discounts[0].amount)
+        except IndexError:
             return None
 
     class Meta(object):
         model = Order
         fields = ('number', 'date_placed', 'status', 'currency', 'total_excl_tax', 'lines', 'billing_address', 'user',
-                  'vouchers', 'payment_processor', 'shipping_address')
+                  'vouchers', 'payment_processor', 'shipping_address', 'discount')
 
 
 class PaymentProcessorSerializer(serializers.Serializer):  # pylint: disable=abstract-method

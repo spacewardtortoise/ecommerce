@@ -29,11 +29,26 @@
                 <% } %>
             </address></div>
         <% } %>
+
+        <% if ( receipt.vouchers.length > 0 ) { %>
+            <p><%- gettext( "Codes applied" ) %>:
+            <% for ( var i = 0; i < receipt.vouchers.length; i++ ) { %>
+                 <%- receipt.vouchers[i].code %>
+               <% } %>
+           </p>
+       <% } %>
+
+        <div class="order-headers order-details"><%= gettext( "Order Details" ) %></div>
         </div>
 
-        <div class="order-summary">
+        <div class="order-headers order-summary">
             <%= gettext( "Order Number" ) %>:
             <div class="order-info"><%- receipt.orderNum %></div>
+            <% if ( receipt.paymentProcessor ) { %>
+                <%= gettext( "Payment Method" ) %>:
+                <div class="order-info"><%- receipt.paymentProcessor %></div>
+             <% } %>
+
             <%= gettext( "Order Date" ) %>:
             <div class="order-info"><%- receipt.purchasedDatetime %></div>
             </div>
@@ -43,9 +58,9 @@
           <table class="table">
             <thead class="order-columns">
               <tr>
-                <th scope="col" ><%- gettext( "Qty" ) %></th>
+                <th scope="col" ><%- gettext( "Qty" ) %>.</th>
                 <th scope="col" ><%- gettext( "Description" ) %></th>
-                <th scope="col" ><%- gettext( "Amount" ) %></th>
+                <th class="order-amount" scope="col" ><%- gettext( "Amount" ) %></th>
               </tr>
             </thead>
 
@@ -54,14 +69,14 @@
                 <% if ( receipt.isRefunded ) { %>
                   <tr  class="order-line-data">
                   <td class="order-line-data"><del><%- receipt.items[i].quantity %></del></td>
-                  <td class="order-line-data"><del><%- receipt.items[i].lineDescription %>:
+                  <td class="order-line-data"><del><%- receipt.items[i].lineDescription %>
                   <div class="partner"></div></del></td>
                   <td class="order-line-data"><del><%- receipt.currency %><%- receipt.items[i].cost %></del></td>
                   </tr>
                 <% } else { %>
                   <tr class="order-line-data">
                     <td><%- receipt.items[i].quantity %></td>
-                    <td><%- receipt.items[i].lineDescription %>:<div class="partner">
+                    <td><%- receipt.items[i].lineDescription %><div class="partner">
                     </div></td>
                     <td><%- receipt.currency %><%- receipt.items[i].cost %></td>
                   </tr>
@@ -71,9 +86,10 @@
 
             <tfoot>
               <tr class="order-total">
-                <td colspan="2"></td>
-                <td class="total-value"> <%- gettext( "Total: " ) %>
+                <td colspan="3">
+                <div class="total-value"> <%- gettext( "Total: " ) %>
                   <%- receipt.currency %><span class="value-amount"><%- receipt.totalCost %></span>
+                </div>
                 </td>
               </tr>
             </tfoot>
@@ -88,17 +104,6 @@
           </div>
           <% } %>
         </div>
-
-        <% if ( receipt.vouchers.length > 0 ) { %>
-            <p><%- gettext( "Codes applied" ) %>:
-            <% for ( var i = 0; i < receipt.vouchers.length; i++ ) { %>
-                  <%- receipt.vouchers[i].code %>
-                <% } %>
-            </p>
-        <% } %>
-        <% if ( receipt.payment_processor ) { %>
-            <p><%- gettext( "Paid for via " ) %><%- receipt.payment_processor %></p>
-        <% } %>
 
         <div class="report report-receipt report-receipt-provider hidden" id="receipt-provider"></div>
 
