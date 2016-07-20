@@ -60,7 +60,6 @@ class UtilTests(CouponMixin, CourseCatalogMockMixin, CourseCatalogTestMixin, Lms
             title='Test product',
             catalog=self.catalog,
             note='Tešt note',
-            quantity=1,
             max_uses=1
         )
         self.coupon.history.all().update(history_user=self.user)

@@ -86,7 +86,7 @@ class CouponMixin(object):
         self.category = factories.CategoryFactory()
 
         self.create_and_login_user()
-        __, self.seat = self.create_course_and_seat(
+        self.course, self.seat = self.create_course_and_seat(
             id_verification=True,
             partner=self.partner
         )
