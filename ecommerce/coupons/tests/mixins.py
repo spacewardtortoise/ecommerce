@@ -24,6 +24,7 @@ class CourseCatalogMockMixin(object):
         if not course_run_info:
             course_run_info = {
                 'count': 1,
+                'next': None,
                 'results': [{
                     'key': course_run.id,
                     'title': course_run.name,

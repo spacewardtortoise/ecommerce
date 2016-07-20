@@ -40,19 +40,30 @@ class CatalogViewSet(NestedViewSetMixin, ReadOnlyModelViewSet):
         """
         query = request.GET.get('query')
         seat_types = request.GET.get('seat_types')
+        offset = request.GET.get('offset')
+        limit = request.GET.get('limit', DEFAULT_CATALOG_PAGE_SIZE)
+
         if query and seat_types:
             seat_types = seat_types.split(',')
             try:
                 client = request.site.siteconfiguration.course_catalog_api_client
-                results = client.course_runs.get(q=query, page_size=DEFAULT_CATALOG_PAGE_SIZE,
-                                                 limit=DEFAULT_CATALOG_PAGE_SIZE)['results']
+                response = client.course_runs.get(
+                    q=query,
+                    limit=limit,
+                    offset=offset
+                )
+                results = response['results']
                 course_ids = [result['key'] for result in results]
                 courses = serializers.CourseSerializer(
                     Course.objects.filter(id__in=course_ids),
                     many=True,
                     context={'request': request}
                 ).data
-                return Response(data=[course for course in courses if course['type'] in seat_types])
+                data = {
+                    'next': response['next'],
+                    'courses': [course for course in courses if course['type'] in seat_types]
+                }
+                return Response(data=data)
             except (ConnectionError, SlumberBaseException, Timeout):
                 logger.error('Unable to connect to Course Catalog service.')
                 return Response(status=status.HTTP_400_BAD_REQUEST)
