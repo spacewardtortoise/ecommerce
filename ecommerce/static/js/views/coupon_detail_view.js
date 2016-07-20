@@ -123,7 +123,7 @@ define([
             render: function () {
                 var html,
                     voucher = this.model.get('vouchers')[0],
-                    category = this.model.get('category').name,
+                    category = this.model.get('category'),
                     note = this.model.get('note'),
                     invoice_data = this.formatInvoiceData(),
                     template_data;

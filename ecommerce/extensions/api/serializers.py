@@ -517,7 +517,7 @@ class CouponSerializer(ProductPaymentInfoMixin, serializers.ModelSerializer):
 
     def get_category(self, obj):
         category = ProductCategory.objects.filter(product=obj).first().category
-        return CategorySerializer(category).data
+        return category.name
 
     class Meta(object):
         model = Product
