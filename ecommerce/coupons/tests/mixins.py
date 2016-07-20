@@ -171,7 +171,7 @@ class CouponMixin(object):
             note=None,
             partner=None,
             price=100,
-            quantity=5,
+            quantity=1,
             start_datetime=(now() - datetime.timedelta(days=15)),
             title='Test coupon',
             voucher_type=Voucher.SINGLE_USE
