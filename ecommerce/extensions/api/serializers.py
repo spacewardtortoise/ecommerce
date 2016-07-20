@@ -474,6 +474,10 @@ class CouponSerializer(ProductPaymentInfoMixin, serializers.ModelSerializer):
         """Helper method to retrieve usage from voucher. """
         return self.retrieve_voucher(obj).usage
 
+    def retrieve_quantity(self, obj):
+        """Helper method to retrieve number from vouchers. """
+        return obj.attr.coupon_vouchers.vouchers.count()
+
     def get_benefit_type(self, obj):
         return self.retrieve_benefit(obj).type
 
@@ -494,7 +498,8 @@ class CouponSerializer(ProductPaymentInfoMixin, serializers.ModelSerializer):
         return Invoice.objects.get(order__basket__lines__product=obj).business_client.name
 
     def get_code(self, obj):
-        return self.retrieve_voucher(obj).code
+        if self.retrieve_quantity(obj) == 1:
+            return self.retrieve_voucher(obj).code
 
     def get_code_status(self, obj):
         start_date = self.retrieve_start_date(obj)
@@ -540,7 +545,7 @@ class CouponSerializer(ProductPaymentInfoMixin, serializers.ModelSerializer):
         return response
 
     def get_quantity(self, obj):
-        return obj.attr.coupon_vouchers.vouchers.count()
+        return self.retrieve_quantity(obj)
 
     def get_seats(self, obj):
         offer = self.retrieve_offer(obj)
