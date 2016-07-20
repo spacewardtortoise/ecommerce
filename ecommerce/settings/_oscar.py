@@ -116,6 +116,7 @@ PAYMENT_PROCESSOR_CONFIG = {
             'secret_key': None,
             'payment_page_url': None,
             'receipt_path': PAYMENT_PROCESSOR_RECEIPT_PATH,
+            'cancel_path': PAYMENT_PROCESSOR_CANCEL_PATH,
             'cancel_checkout_path': PAYMENT_PROCESSOR_CANCEL_PATH,
             'send_level_2_3_details': True,
         },

@@ -79,6 +79,7 @@ PAYMENT_PROCESSOR_CONFIG = {
             'payment_page_url': 'https://replace-me/',
             'receipt_path': PAYMENT_PROCESSOR_RECEIPT_PATH,
             'cancel_path': PAYMENT_PROCESSOR_CANCEL_PATH,
+            'cancel_checkout_path': PAYMENT_PROCESSOR_CANCEL_PATH,
             'send_level_2_3_details': True,
         },
         'paypal': {
@@ -87,6 +88,7 @@ PAYMENT_PROCESSOR_CONFIG = {
             'client_secret': 'fake-client-secret',
             'receipt_path': PAYMENT_PROCESSOR_RECEIPT_PATH,
             'cancel_path': PAYMENT_PROCESSOR_CANCEL_PATH,
+            'cancel_checkout_path': PAYMENT_PROCESSOR_CANCEL_PATH,
             'error_path': PAYMENT_PROCESSOR_ERROR_PATH,
         },
         'invoice': {}
@@ -102,6 +104,7 @@ PAYMENT_PROCESSOR_CONFIG = {
             'payment_page_url': 'https://replace-me/',
             'receipt_path': PAYMENT_PROCESSOR_RECEIPT_PATH,
             'cancel_path': PAYMENT_PROCESSOR_CANCEL_PATH,
+            'cancel_checkout_path': PAYMENT_PROCESSOR_CANCEL_PATH,
             'send_level_2_3_details': True,
         },
         'paypal': {
@@ -110,6 +113,7 @@ PAYMENT_PROCESSOR_CONFIG = {
             'client_secret': 'pther-fake-client-secret',
             'receipt_path': PAYMENT_PROCESSOR_RECEIPT_PATH,
             'cancel_path': PAYMENT_PROCESSOR_CANCEL_PATH,
+            'cancel_checkout_path': PAYMENT_PROCESSOR_CANCEL_PATH,
             'error_path': PAYMENT_PROCESSOR_ERROR_PATH,
         },
         'invoice': {}
