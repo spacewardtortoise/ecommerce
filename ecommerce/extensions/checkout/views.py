@@ -7,7 +7,6 @@ import logging
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
-from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext as _
 from django.views.generic import RedirectView, TemplateView
@@ -55,40 +54,6 @@ class FreeCheckoutView(EdxOrderPlacementMixin, RedirectView):
             # page which displays the appropriate message for empty baskets.
             url = reverse('basket:summary')
         return url
-
-
-class CancelResponseView(RedirectView):
-    """ Handles behaviour for the 'cancel' redirect. """
-    permanent = False
-
-    def get(self, request, *args, **kwargs):
-        """ Retrieves the previously frozen basket from the kwargs and thaws it. """
-        basket = get_object_or_404(Basket, id=kwargs['basket_id'],
-                                   status=Basket.FROZEN)
-        basket.thaw()
-        logger.info('Payment for basket [%s] was cancelled. Transaction ID is [%s]. ',
-                    request.GET.get('token', '<no token>'), basket.id)
-        return super(CancelResponseView, self).get(request, *args, **kwargs)
-
-    def get_redirect_url(self, **kwargs):
-        """ Redirects back to the basket summary page. """
-        return reverse('basket:summary')
-
-
-class ErrorResponseView(TemplateView):
-    """ Displays an error page when checkout does not complete successfully. """
-
-    template_name = 'checkout/error.html'
-
-    def get_context_data(self, **kwargs):
-        """
-        Currently, only collects support email; more information may be needed later based on page design.
-        """
-        context = super(ErrorResponseView, self).get_context_data(**kwargs)
-        context.update({
-            'payment_support_email': settings.PAYMENT_SUPPORT_EMAIL,
-        })
-        return context
 
 
 class ReceiptResponseView(ThankYouView):
