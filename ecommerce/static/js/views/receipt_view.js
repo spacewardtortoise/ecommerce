@@ -4,10 +4,11 @@ define([
         'backbone',
         'underscore',
         'currency-symbol',
+        'edx-ui-toolkit-string-utils',
         'bootstrap',
         'jquery-url'
     ],
-function ($, AjaxRetry, Backbone, _, Currency) {
+function ($, AjaxRetry, Backbone, _, Currency, StringUtils) {
     'use strict';
 
     return Backbone.View.extend({
@@ -51,7 +52,7 @@ function ($, AjaxRetry, Backbone, _, Currency) {
             return this;
         },
         renderPartner: function (data){
-          $('.partner').text(data.short_code);
+          $('.partner').text(data.name);
         },
         renderCourseNamePlaceholder: function (courseId) {
             // Display the course Id or name (if available) in the placeholder
@@ -69,7 +70,6 @@ function ($, AjaxRetry, Backbone, _, Currency) {
             context.username = this.username;
             context.platformName = this.$el.data('platform-name');
             console.log('Provider context: ' + context);
-            console.log('Provider HTML: ' + templateHtml);
             providerDiv.html(_.template(templateHtml)(context)).removeClass('hidden');
         },
 
@@ -123,7 +123,7 @@ function ($, AjaxRetry, Backbone, _, Currency) {
          * @return {object} JQuery Promise.
          */
         getReceiptData: function (orderId) {
-            var urlFormat = '/api/v2/orders/' + orderId;
+            var urlFormat = StringUtils.interpolate('/api/v2/orders/{orderId}', {orderId: orderId});
 
             if (this.ecommerceOrderNumber) {
                 urlFormat = '/api/v2/orders/' + orderId + '/';
@@ -194,23 +194,15 @@ function ($, AjaxRetry, Backbone, _, Currency) {
                     currency: Currency.symbolize(order.currency),
                     email: order.user.email,
                     vouchers: order.vouchers,
-                    payment_processor: order.payment_processor,
+                    paymentProcessor: order.payment_processor,
                     shipping_address: order.shipping_address,
                     purchasedDatetime: order.date_placed,
                     totalCost: self.formatMoney(order.total_excl_tax),
-                    //partner: self.getPartnerShortCode(order.lines[0].product.stockrecords[0].partner),
+                    discount: order.discount,
                     isRefunded: false,
                     items: [],
                     billedTo: null
                 };
-                // self.getPartnerShortCode(order.lines[0].product.stockrecords[0].partner).done(function (data) {
-                //     console.log('Data: ' + JSON.stringify(data));
-                //     receiptContext.partner = data.short_code;
-                //     console.log('partner result1: ' + JSON.stringify(receiptContext.partner));
-                // });
-                //
-                // console.log('partner result: ' + JSON.stringify(receiptContext.partner));
-
 
                 if (order.billing_address) {
                     receiptContext.billedTo = {
