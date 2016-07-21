@@ -11,6 +11,7 @@ require.config({
         'bootstrap_accessibility': 'bower_components/bootstrapaccessibilityplugin/plugins/js/bootstrap-accessibility',
         'collections': 'js/collections',
         'currency-symbol': 'bower_components/currency-symbol.js/currency',
+        'date-utils': 'bower_components/date-utils/lib/date-utils.min',
         'datatables.net': 'bower_components/datatables/media/js/jquery.dataTables',
         'dataTablesBootstrap': 'bower_components/datatables/media/js/dataTables.bootstrap',
         'ecommerce': 'js/shims/ecommerce',

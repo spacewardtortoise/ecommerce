@@ -50,7 +50,7 @@
           <table class="table">
             <thead class="order-columns">
               <tr>
-                <th scope="col" ><%- gettext( "Qty" ) %>.</th>
+                <th scope="col" ><%- gettext( "Qty" ) %>.</th> <!-- Translators: Abbreviation for quantity.-->
                 <th scope="col" ><%- gettext( "Description" ) %></th>
                 <th class="order-amount" scope="col" ><%- gettext( "Amount" ) %></th>
               </tr>

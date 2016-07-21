@@ -5,11 +5,12 @@ define([
         'underscore',
         'currency-symbol',
         'edx-ui-toolkit/utils/string-utils',
+        'date-utils',
         'utils/analytics_utils',
         'bootstrap',
         'jquery-url'
     ],
-function ($, AjaxRetry, Backbone, _, Currency, StringUtils, AnalyticsUtils) {
+function ($, AjaxRetry, Backbone, _, Currency, StringUtils, DateUtils, AnalyticsUtils) {
     'use strict';
 
     return Backbone.View.extend({
@@ -189,6 +190,7 @@ function ($, AjaxRetry, Backbone, _, Currency, StringUtils, AnalyticsUtils) {
 
             if (this.useEcommerceApi) {
                 console.log('Using E-Commerce API');
+                order.date_placed = new Date(order.date_placed);
                 receiptContext = {
                     orderNum: order.number,
                     currency: Currency.symbolize(order.currency),
@@ -196,7 +198,10 @@ function ($, AjaxRetry, Backbone, _, Currency, StringUtils, AnalyticsUtils) {
                     vouchers: order.vouchers,
                     paymentProcessor: order.payment_processor,
                     shipping_address: order.shipping_address,
-                    purchasedDatetime: order.date_placed,
+                    bleh: DateUtils.getMonthNameFromNumber(5),
+                    purchasedDatetime: StringUtils.interpolate('{month} {day}, {year}',
+                        {month: DateUtils.getMonthNameFromNumber(order.date_placed.getMonth()),
+                            day: order.date_placed.getDay(), year: order.date_placed.getYear()}),
                     totalCost: self.formatMoney(order.total_excl_tax),
                     originalCost: self.formatMoney(parseInt(order.discount) + parseInt(order.total_excl_tax)),
                     discount: order.discount,
