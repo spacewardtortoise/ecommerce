@@ -1,18 +1,15 @@
 define([
         'views/receipt_view',
-        'pages/page',
-        'utils/analytics_utils'
+        'pages/page'
     ],
     function (ReceiptView,
-              Page,
-              AnalyticsUtils) {
+              Page) {
         'use strict';
 
         return Page.extend({
             title: gettext('Receipt'),
 
             initialize: function () {
-                AnalyticsUtils.analyticsSetUp();
                 this.view = new ReceiptView();
                 this.view.render();
             }

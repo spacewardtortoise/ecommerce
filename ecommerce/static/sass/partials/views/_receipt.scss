@@ -6,10 +6,10 @@
 
     .action-primary {
         background: #006d01 none repeat scroll 0 0;
-        border: 0 none !important;
+        border: 0 none ;//!important;
         box-shadow: 0 2px 1px 0 #005201;
-        color: #fff !important;
-        text-decoration: none !important;
+        color: #fff ;//!important;
+        text-decoration: none ;//!important;
 
         &:hover, &:focus {
             background: #60bc61 none repeat scroll 0 0;
@@ -35,7 +35,17 @@
         }
     }
 
-     .is-ready {
+    .discount, .final-price {
+        color: black;
+        font-weight: 700;
+    }
+
+    .final-price {
+        font-size: 1em;
+        margin: 1.25em 1em 1.25em 1em;
+    }
+
+    .is-ready {
         background: #e8f6fc none repeat scroll 0 0;
     }
 
@@ -52,6 +62,12 @@
     .nav-wizard {
         box-shadow: 0 1px 2px 1px rgba(0, 0, 0, 0.2) inset;
         padding: 15px 20px;
+    }
+
+    .old-price {
+        color: #7c7c7c;
+        font-weight: 600;
+        text-decoration: line-through;
     }
 
     .order-amount {
@@ -81,6 +97,12 @@
     .order-line-data {
         color: rgb(29, 29, 29);
         font-size: 20px;
+
+        > td {
+            line-height: 1.5em !important;
+            padding-bottom: 1.5em;
+            padding-top: 1.25em;
+        }
     }
 
     .order-summary {
@@ -153,6 +175,15 @@
         color: rgb(0, 121, 188);
         font-size: 38px;
         margin-bottom: 10px;
+    }
+
+    .voucher-code {
+        color:  #7c7c7c;
+        margin-right: 20px;
+    }
+
+    .voucher-info {
+         font-size: 16px;
     }
 
     .wrapper-content-main {

@@ -4,11 +4,12 @@ define([
         'backbone',
         'underscore',
         'currency-symbol',
-        'edx-ui-toolkit-string-utils',
+        'edx-ui-toolkit/utils/string-utils',
+        'utils/analytics_utils',
         'bootstrap',
         'jquery-url'
     ],
-function ($, AjaxRetry, Backbone, _, Currency, StringUtils) {
+function ($, AjaxRetry, Backbone, _, Currency, StringUtils, AnalyticsUtils) {
     'use strict';
 
     return Backbone.View.extend({
@@ -43,8 +44,10 @@ function ($, AjaxRetry, Backbone, _, Currency, StringUtils) {
 
             this.getPartnerData(data).then(this.renderPartner, this.renderError);
             this.$el.html(_.template(templateHtml)(context));
-            this.trackLinks();
-            this.trackPurchase(data);
+            //this.trackLinks();
+            // this.trackPurchase(data);
+            // After fully rendering the template, attach analytics click handlers
+            AnalyticsUtils.instrumentClickEvents();
             providerId = this.getCreditProviderId(data);
             if (providerId) {
                 this.getProviderData(this.$el.data('lms-url'), providerId).then(this.renderProvider, this.renderError);
@@ -69,7 +72,6 @@ function ($, AjaxRetry, Backbone, _, Currency, StringUtils) {
             context.course_key = this.courseKey;
             context.username = this.username;
             context.platformName = this.$el.data('platform-name');
-            console.log('Provider context: ' + context);
             providerDiv.html(_.template(templateHtml)(context)).removeClass('hidden');
         },
 
@@ -123,16 +125,16 @@ function ($, AjaxRetry, Backbone, _, Currency, StringUtils) {
          * @return {object} JQuery Promise.
          */
         getReceiptData: function (orderId) {
-            var urlFormat = StringUtils.interpolate('/api/v2/orders/{orderId}', {orderId: orderId});
+            var urlFormat = '/api/v2/orders/{orderId}/';
 
             if (this.ecommerceOrderNumber) {
-                urlFormat = '/api/v2/orders/' + orderId + '/';
+                urlFormat = '/api/v2/orders/{orderId}/';
             } else if (this.ecommerceBasketId){
-                urlFormat = '/api/v2/baskets/' + orderId + '/order/';
+                urlFormat = '/api/v2/baskets/{orderId}/order/';
             }
 
             return $.ajax({
-                url: urlFormat,
+                url: StringUtils.interpolate(urlFormat, {orderId: orderId}),
                 type: 'GET',
                 dataType: 'json'
             }).retry({times: 5, timeout: 2000, statusCodes: [404]});
@@ -144,10 +146,10 @@ function ($, AjaxRetry, Backbone, _, Currency, StringUtils) {
          * @return {object} JQuery Promise.
          */
         getProviderData: function (lmsUrl, providerId) {
-            var providerBaseUrl = lmsUrl + '/api/credit/v1/providers/';
+            var providerUrlFormat = '{lmsUrl}/api/credit/v1/providers/{providerId}';
 
             return $.ajax({
-                url: providerBaseUrl +  providerId,
+                url: StringUtils.interpolate(providerUrlFormat, {lmsUrl: lmsUrl, providerId: providerId}),
                 type: 'GET',
                 dataType: 'json',
                 contentType: 'application/json',
@@ -163,9 +165,7 @@ function ($, AjaxRetry, Backbone, _, Currency, StringUtils) {
          * @return {object} JQuery Promise.
          */
         getPartnerData: function (order) {
-            console.log('input ' + JSON.stringify(order));
             var partnerId = order.lines[0].product.stockrecords[0].partner;
-            console.debug('partner id: ' + partnerId);
             return $.ajax({
                 url: '/api/v2/partners/' +  partnerId + '/',
                 type: 'GET',
@@ -198,7 +198,10 @@ function ($, AjaxRetry, Backbone, _, Currency, StringUtils) {
                     shipping_address: order.shipping_address,
                     purchasedDatetime: order.date_placed,
                     totalCost: self.formatMoney(order.total_excl_tax),
+                    originalCost: self.formatMoney(parseInt(order.discount) + parseInt(order.total_excl_tax)),
                     discount: order.discount,
+                    discountPercentage: parseInt(order.discount) / (parseInt(order.discount) +
+                                        parseInt(order.total_excl_tax)) * 100,
                     isRefunded: false,
                     items: [],
                     billedTo: null

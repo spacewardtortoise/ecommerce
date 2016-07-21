@@ -14,7 +14,7 @@ require.config({
         'datatables.net': 'bower_components/datatables/media/js/jquery.dataTables',
         'dataTablesBootstrap': 'bower_components/datatables/media/js/dataTables.bootstrap',
         'ecommerce': 'js/shims/ecommerce',
-        'edx-ui-toolkit-string-utils': '../../node_modules/edx-ui-toolkit/src/js/utils/string-utils',
+        'edx-ui-toolkit': '../../node_modules/edx-ui-toolkit/src/js',
         'jquery': 'bower_components/jquery/dist/jquery',
         'jquery-ajax-retry': 'bower_components/jquery-ajax-retry/src/jquery.ajax-retry',
         'jquery-url': 'bower_components/js-url/url.min',
