@@ -10,7 +10,6 @@ from ecommerce.core.url_utils import get_ecommerce_url
 from ecommerce.core.tests.decorators import mock_course_catalog_api_client
 from ecommerce.coupons.tests.mixins import CouponMixin, CourseCatalogMockMixin
 from ecommerce.courses.tests.factories import CourseFactory
-from ecommerce.extensions.catalogue.tests.mixins import CourseCatalogTestMixin
 from ecommerce.extensions.fulfillment.modules import CouponFulfillmentModule
 from ecommerce.extensions.fulfillment.status import LINE
 from ecommerce.extensions.voucher.utils import (
@@ -36,7 +35,7 @@ VOUCHER_CODE_LENGTH = 1
 
 @httpretty.activate
 @mock_course_catalog_api_client
-class UtilTests(CouponMixin, CourseCatalogMockMixin, CourseCatalogTestMixin, LmsApiMockMixin, TestCase):
+class UtilTests(CouponMixin, CourseCatalogMockMixin, LmsApiMockMixin, TestCase):
     course_id = 'edX/DemoX/Demo_Course'
     certificate_type = 'test-certificate-type'
     provider = None

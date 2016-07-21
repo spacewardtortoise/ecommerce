@@ -17,7 +17,6 @@ from ecommerce.core.tests.decorators import mock_course_catalog_api_client
 from ecommerce.coupons.tests.mixins import CouponMixin, CourseCatalogMockMixin
 from ecommerce.extensions.api.v2.views.coupons import CouponViewSet
 from ecommerce.extensions.api.v2.tests.views.mixins import CatalogMixin
-from ecommerce.extensions.catalogue.tests.mixins import CourseCatalogTestMixin
 from ecommerce.extensions.voucher.models import CouponVouchers
 from ecommerce.invoice.models import Invoice
 from ecommerce.tests.mixins import APIMixin, ThrottlingMixin
@@ -41,7 +40,7 @@ COUPONS_LINK = reverse('api:v2:coupons-list')
 
 @httpretty.activate
 @ddt.ddt
-class CouponViewSetTest(CatalogMixin, CouponMixin, CourseCatalogTestMixin, TestCase):
+class CouponViewSetTest(CatalogMixin, CouponMixin, TestCase):
     """Tests for Coupon API endpoints."""
     def setUp(self):
         super(CouponViewSetTest, self).setUp()
@@ -169,9 +168,7 @@ class CouponViewSetTest(CatalogMixin, CouponMixin, CourseCatalogTestMixin, TestC
 
 
 @ddt.ddt
-class CouponViewSetFunctionalTest(
-        APIMixin, CouponMixin, CourseCatalogMockMixin, CourseCatalogTestMixin, ThrottlingMixin, TestCase
-):
+class CouponViewSetFunctionalTest(APIMixin, CouponMixin, CourseCatalogMockMixin, ThrottlingMixin, TestCase):
     """Test the coupon order creation functionality."""
 
     def setUp(self):

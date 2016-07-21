@@ -12,6 +12,7 @@ from django.utils.timezone import now
 from oscar.test import factories
 
 from ecommerce.extensions.basket.utils import prepare_basket
+from ecommerce.extensions.catalogue.tests.mixins import CourseCatalogTestMixin
 from ecommerce.extensions.catalogue.utils import create_coupon_product
 from ecommerce.extensions.checkout.mixins import EdxOrderPlacementMixin
 from ecommerce.invoice.models import Invoice
@@ -74,7 +75,7 @@ class CourseCatalogMockMixin(object):
         )
 
 
-class CouponMixin(object):
+class CouponMixin(CourseCatalogTestMixin):
     """ Mixin for preparing data for coupons and creating coupons. """
 
     REDEMPTION_URL = "/coupons/offer/?code={}"
