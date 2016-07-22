@@ -71,6 +71,7 @@ class CouponViewSetTest(CouponMixin, CourseCatalogTestMixin, TestCase):
             'max_uses': None,
             'catalog_query': None,
             'course_seat_types': None,
+            'email_domains': None,
         }
 
     def setup_site_configuration(self):
