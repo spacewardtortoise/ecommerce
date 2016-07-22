@@ -363,7 +363,8 @@ def create_vouchers(
         max_uses=None,
         _range=None,
         catalog_query=None,
-        course_seat_types=None):
+        course_seat_types=None,
+        email_domains=None):
     """
     Create vouchers.
 
@@ -379,6 +380,7 @@ def create_vouchers(
             start_datetime (datetime): Start date for voucher offer.
             voucher_type (str): Type of voucher.
             code (str): Code associated with vouchers. Defaults to None.
+            email_domains (str): List of email domains to restrict coupons. Defaults to None.
 
     Returns:
             List[Voucher]
@@ -398,7 +400,8 @@ def create_vouchers(
             name=range_name,
             catalog=catalog,
             catalog_query=catalog_query,
-            course_seat_types=course_seat_types
+            course_seat_types=course_seat_types,
+            email_domains=email_domains
         )
 
     # In case of more than 1 multi-usage coupon, each voucher needs to have an individual

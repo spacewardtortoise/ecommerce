@@ -161,6 +161,9 @@ define([
                 'input[name=course_seat_types]': {
                     observe: 'course_seat_types'
                 },
+                'textarea[name=email_domains]': {
+                    observe: 'email_domains'
+                },
                 'input[name=invoice_type]': {
                     observe: 'invoice_type'
                 },
@@ -248,6 +251,7 @@ define([
                         'start_date',
                         'tax_deducted_source',
                         'title',
+                        'email_domains'
                     ];
                 }
 
@@ -263,6 +267,7 @@ define([
                 this.listenTo(this.model, 'change:catalog_type', this.toggleCatalogTypeField);
                 this.listenTo(this.model, 'change:catalog_query', this.updateCatalogQuery);
                 this.listenTo(this.model, 'change:course_seat_types', this.updateCourseSeatTypes);
+                this.listenTo(this.model, 'change:email_domains', this.updateEmailDomains);
 
                 this._super();
             },
@@ -525,6 +530,10 @@ define([
 
             updateCourseSeatTypes: function() {
                 this.dynamic_catalog_view.seat_types = this.model.get('course_seat_types');
+            },
+
+            updateEmailDomains: function() {
+                this.email_domains = this.model.get('email_domains');
             },
 
             /**

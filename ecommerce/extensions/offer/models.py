@@ -14,6 +14,7 @@ class Range(AbstractRange):
     catalog = models.ForeignKey('catalogue.Catalog', blank=True, null=True, related_name='ranges')
     catalog_query = models.CharField(max_length=255, blank=True, null=True)
     course_seat_types = models.CharField(max_length=255, blank=True, null=True)
+    email_domains = models.CharField(max_length=255, blank=True, null=True)
 
     def run_catalog_query(self, product):
         """
@@ -36,6 +37,16 @@ class Range(AbstractRange):
         return response
 
     def contains_product(self, product):
+        if self.email_domains:
+            match = False
+            user_email = get_current_request().user.email
+            domains = self.email_domains.split(',')
+            for domain in domains:
+                if domain in user_email:
+                    match = True
+                    break
+            if not match:
+                return False
         if self.catalog_query and self.course_seat_types:
             if product.attr.certificate_type.lower() in self.course_seat_types:  # pylint: disable=unsupported-membership-test
                 response = self.run_catalog_query(product)

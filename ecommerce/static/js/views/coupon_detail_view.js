@@ -65,7 +65,6 @@ define([
                 }
                 return '';
             },
- 
             taxDeductedSource: function(value) {
                 if (value) {
                     return _s.sprintf('%u%%', parseInt(value));
@@ -84,7 +83,6 @@ define([
                     invoice_discount_type = this.model.get('invoice_discount_type'),
                     invoice_discount_value = this.model.get('invoice_discount_value'),
                     tax_deducted_source = this.model.get('tax_deducted_source');
-                
                 if (invoice_discount_value === null) {
                     invoice_discount_type = null;
                 } else  {
@@ -126,6 +124,7 @@ define([
                     category = this.model.get('categories')[0].name,
                     note = this.model.get('note'),
                     invoice_data = this.formatInvoiceData(),
+                    emailDomains = this.model.get('email_domains'),
                     template_data;
 
                 template_data = {
@@ -140,7 +139,8 @@ define([
                     usage: this.usageLimitation(voucher),
                     category: category,
                     note: note,
-                    courseSeatType: this.formatSeatTypes()
+                    courseSeatType: this.formatSeatTypes(),
+                    emailDomains: emailDomains
                 };
 
                 $.extend(template_data, invoice_data);
