@@ -10,7 +10,7 @@ class CheckoutApplication(app.CheckoutApplication):
     def get_urls(self):
         urls = [
             url(r'^free-checkout/$', self.free_checkout.as_view(), name='free-checkout'),
-            url(r'^cancel-checkout/$', self.cancel_checkout.as_view(), name='cancel'),
+            url(r'^cancel-checkout/$', self.cancel_checkout.as_view(), name='cancel-checkout'),
 
             url(r'^$', self.index_view.as_view(), name='index'),
 

@@ -548,3 +548,6 @@ ENROLLMENT_CODE_EXIPRATION_DATE = datetime.datetime.now() + datetime.timedelta(w
 
 # Affiliate cookie key
 AFFILIATE_COOKIE_KEY = 'affiliate_id'
+
+# Contact email for payment issues
+PAYMENT_SUPPORT_EMAIL = 'billing@example.com'
