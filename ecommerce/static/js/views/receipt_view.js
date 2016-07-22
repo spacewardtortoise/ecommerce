@@ -5,12 +5,12 @@ define([
         'underscore',
         'currency-symbol',
         'edx-ui-toolkit/utils/string-utils',
-        'date-utils',
         'utils/analytics_utils',
+        'date-utils',
         'bootstrap',
         'jquery-url'
     ],
-function ($, AjaxRetry, Backbone, _, Currency, StringUtils, DateUtils, AnalyticsUtils) {
+function ($, AjaxRetry, Backbone, _, Currency, StringUtils, AnalyticsUtils) {
     'use strict';
 
     return Backbone.View.extend({
@@ -198,10 +198,9 @@ function ($, AjaxRetry, Backbone, _, Currency, StringUtils, DateUtils, Analytics
                     vouchers: order.vouchers,
                     paymentProcessor: order.payment_processor,
                     shipping_address: order.shipping_address,
-                    bleh: DateUtils.getMonthNameFromNumber(5),
                     purchasedDatetime: StringUtils.interpolate('{month} {day}, {year}',
-                        {month: DateUtils.getMonthNameFromNumber(order.date_placed.getMonth()),
-                            day: order.date_placed.getDay(), year: order.date_placed.getYear()}),
+                        {month: Date.getMonthNameFromNumber(order.date_placed.getMonth()),
+                            day: order.date_placed.getDate(), year: order.date_placed.getFullYear()}),
                     totalCost: self.formatMoney(order.total_excl_tax),
                     originalCost: self.formatMoney(parseInt(order.discount) + parseInt(order.total_excl_tax)),
                     discount: order.discount,

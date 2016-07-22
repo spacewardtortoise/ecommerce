@@ -170,6 +170,7 @@ class OrderSerializer(serializers.ModelSerializer):
     payment_processor = serializers.SerializerMethodField()
     shipping_address = serializers.SerializerMethodField()
     discount = serializers.SerializerMethodField()
+    shipping_address_format = '{city}, {state} {postcode}'
 
     def get_vouchers(self, obj):
         try:
@@ -188,9 +189,12 @@ class OrderSerializer(serializers.ModelSerializer):
     def get_shipping_address(self, obj):
         try:
             shipping_address = obj.shipping_address
+            formatted_shipping_address = self.shipping_address_format.format(city=shipping_address.city,
+                                                                             state=shipping_address.state,
+                                                                             postcode=shipping_address.postcode)
             relevant_address_fields = [shipping_address.salutation, shipping_address.line1, shipping_address.line2,
-                              shipping_address.line3, '{0}, {1} {2}'.format(shipping_address.city, shipping_address.state,
-                              shipping_address.postcode), shipping_address.country_id, shipping_address.phone_number]
+                                       shipping_address.line3, formatted_shipping_address, shipping_address.country_id,
+                                       shipping_address.phone_number]
             return [field for field in relevant_address_fields if field]
         except AttributeError:
             return None

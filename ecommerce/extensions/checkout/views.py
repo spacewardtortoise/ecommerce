@@ -2,14 +2,12 @@
 from __future__ import unicode_literals
 
 from decimal import Decimal
-import logging
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
-from django.core.urlresolvers import reverse
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext as _
-from django.views.generic import RedirectView, TemplateView
+from django.views.generic import RedirectView
 from oscar.apps.checkout.views import *  # pylint: disable=wildcard-import, unused-wildcard-import
 from oscar.core.loading import get_class, get_model
 
@@ -20,7 +18,6 @@ from ecommerce.extensions.checkout.mixins import EdxOrderPlacementMixin
 Applicator = get_class('offer.utils', 'Applicator')
 Basket = get_model('basket', 'Basket')
 Order = get_model('order', 'Order')
-logger = logging.getLogger(__name__)
 
 
 class FreeCheckoutView(EdxOrderPlacementMixin, RedirectView):
