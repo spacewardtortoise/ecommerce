@@ -30,9 +30,7 @@
             </address></div>
         <% } %>
 
-        <div class="order-headers order-details"><%= gettext( "Order Details" ) %></div>
         </div>
-
         <div class="order-headers order-summary">
             <%= gettext( "Order Number" ) %>:
             <div class="order-info"><%- receipt.orderNum %></div>
@@ -47,6 +45,7 @@
         </div>
 
         <div class="wrapper-report">
+          <div class="order-headers order-details"><%= gettext( "Order Details" ) %></div>
           <table class="table">
             <thead class="order-columns">
               <tr>

@@ -45,6 +45,10 @@
         margin: 1.25em 1em 1.25em 1em;
     }
 
+    .info-item {
+        overflow: hidden;
+    }
+
     .is-ready {
         background: #e8f6fc none repeat scroll 0 0;
     }
@@ -81,6 +85,11 @@
         color: #000;
         font-size: 1em;
     }
+
+    .order-details {
+        margin-bottom: 20px;
+    }
+
     .order-headers {
         color: rgb(0, 121, 188);
         font-size: 22px;
