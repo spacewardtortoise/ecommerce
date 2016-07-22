@@ -69,7 +69,7 @@
                     <td><%- receipt.items[i].quantity %></td>
                     <td><%- receipt.items[i].lineDescription %><div class="partner">
                     </div>
-                    <% if ( receipt.vouchers ) { %>
+                    <% if ( receipt.vouchers.length > 0 ) { %>
                         <div class="voucher-info"><%- gettext( "Coupon applied" ) %>:
                              <span class="voucher-code"><%- receipt.vouchers[0].code %>
                              <%- receipt.discountPercentage %>% off</span>
