@@ -7,6 +7,7 @@ import mock
 import ddt
 import httpretty
 import pytz
+from django.core.cache import cache
 from django.core.urlresolvers import reverse
 from django.http import Http404
 from opaque_keys.edx.keys import CourseKey
@@ -93,6 +94,7 @@ class VoucherViewSetTests(CourseCatalogMockMixin, CourseCatalogTestMixin, TestCa
             }]
         }
 
+        cache.clear()
         self.mock_dynamic_catalog_course_runs_api(query='*:*', course_run_info=course_run_info)
         new_range, __ = Range.objects.get_or_create(catalog_query='*:*')
         new_range.add_product(seat1)

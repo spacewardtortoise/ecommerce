@@ -15,10 +15,10 @@ from rest_framework.response import Response
 from rest_framework_extensions.decorators import action
 from slumber.exceptions import SlumberBaseException
 
-from ecommerce.core.constants import DEFAULT_CATALOG_PAGE_SIZE
 from ecommerce.core.url_utils import get_lms_url
 from ecommerce.courses.models import Course
 from ecommerce.courses.utils import get_course_info_from_lms
+from ecommerce.coupons.utils import get_range_catalog_query_results
 from ecommerce.coupons.views import get_voucher_and_products_from_code
 from ecommerce.extensions.api import exceptions, serializers
 from ecommerce.extensions.api.permissions import IsOffersOrIsAuthenticatedAndStaff
@@ -111,12 +111,7 @@ class VoucherViewSet(NonDestroyableModelViewSet):
         catalog_query = benefit.range.catalog_query
         offers = []
         if catalog_query:
-            query_results = request.site.siteconfiguration.course_catalog_api_client.course_runs.get(
-                q=catalog_query,
-                page_size=DEFAULT_CATALOG_PAGE_SIZE,
-                limit=DEFAULT_CATALOG_PAGE_SIZE
-            )['results']
-
+            query_results = get_range_catalog_query_results(query=catalog_query, site=request.site)
             course_ids = [product.course_id for product in products]
             courses = Course.objects.filter(id__in=course_ids)
             stock_records = StockRecord.objects.filter(product__in=products)
