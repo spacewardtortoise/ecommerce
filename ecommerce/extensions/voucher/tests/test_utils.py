@@ -329,6 +329,7 @@ class UtilTests(CouponMixin, CourseCatalogMockMixin, CourseCatalogTestMixin, Lms
             'Create Date',
             'Coupon Start Date',
             'Coupon Expiry Date',
+            'Email Domains',
         ])
 
         for row in rows:
