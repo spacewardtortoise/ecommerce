@@ -104,7 +104,6 @@ def _get_info_for_coupon_report(coupon, voucher):
     path = '{path}?code={code}'.format(path=reverse('coupons:offer'), code=voucher.code)
     url = get_ecommerce_url(path)
     author = history.history_user.full_name.encode('utf8')
-    email_domains = offer.condition.range.email_domains
 
     try:
         note = coupon.attr.note.encode('utf8')
@@ -149,7 +148,7 @@ def _get_info_for_coupon_report(coupon, voucher):
         'Coupon Expiry Date': voucher.end_datetime.strftime("%b %d, %y"),
         'Maximum Coupon Usage': max_uses_count,
         'Redemption Count': redemption_count,
-        'Email Domains': email_domains,
+        'Email Domains': offer.condition.range.email_domains,
     }
 
     if course_id:
