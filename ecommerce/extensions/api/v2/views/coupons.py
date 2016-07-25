@@ -132,7 +132,7 @@ class CouponViewSet(EdxOrderPlacementMixin, viewsets.ModelViewSet):
             max_uses = request.data.get('max_uses')
             catalog_query = request.data.get(CATALOG_QUERY)
             course_seat_types = request.data.get(COURSE_SEAT_TYPES)
-            email_domains = request.data.get('email_domains')
+            email_domains = request.data.get(EMAIL_DOMAINS)
 
             if code:
                 try:
