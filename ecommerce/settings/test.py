@@ -136,3 +136,6 @@ COMPREHENSIVE_THEME_DIRS = [
 ]
 
 DEFAULT_SITE_THEME = "test-theme"
+
+PAYMENT_SUPPORT_EMAIL = 'billing@example.com'
+PLATFORM_NAME = 'My Platform'

@@ -265,3 +265,5 @@ VOUCHER_CODE_LENGTH = 16
 THUMBNAIL_DEBUG = False
 
 OSCAR_FROM_EMAIL = 'testing@example.com'
+
+PAYMENT_SUPPORT_EMAIL = 'billing@example.com'

@@ -46,8 +46,6 @@ define([
 
             instrumentClickEvents: function() {
                 var self = this;
-                console.log("Clickin'");
-                console.log("What is this " + JSON.stringify(this.trackingModel));
                 // instrument the click events
                 _($('[data-track-type="click"]')).each(function (track) {
                     var properties = Utils.getNodeProperties(track.attributes,

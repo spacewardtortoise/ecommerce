@@ -1,12 +1,15 @@
 """ Checkout related views. """
 from __future__ import unicode_literals
 
+import logging
+
 from decimal import Decimal
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext as _
+from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import RedirectView
 from oscar.apps.checkout.views import *  # pylint: disable=wildcard-import, unused-wildcard-import
 from oscar.core.loading import get_class, get_model
@@ -18,6 +21,8 @@ from ecommerce.extensions.checkout.mixins import EdxOrderPlacementMixin
 Applicator = get_class('offer.utils', 'Applicator')
 Basket = get_model('basket', 'Basket')
 Order = get_model('order', 'Order')
+
+log = logging.getLogger(__name__)
 
 
 class FreeCheckoutView(EdxOrderPlacementMixin, RedirectView):
@@ -58,9 +63,32 @@ class ReceiptResponseView(ThankYouView):
 
     template_name = 'checkout/receipt.html'
 
+    @method_decorator(csrf_exempt)
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
+        """ Customers should only be able to view their receipts when logged in. To avoid blocking POST responses
+        from CyberSource, the view must be CSRF-exempt. """
         return super(ReceiptResponseView, self).dispatch(*args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        """ Handles payment processor response from CyberSource. """
+        # To avoid a race condition where the receipt tries to fetch its associated order before the CyberSource
+        # payment processor has finished, manually set its associated object to None.
+        self.object = None
+        context = self.get_context_data(**kwargs)
+        # Present some more information if CyberSource indicates it did not succeed.
+        if request.POST['decision'] != 'ACCEPT':
+            context.update({
+                'is_payment_complete': False,
+                'page_title': _('Payment Failed'),
+                'error_summary': _("A system error occurred while processing your payment. You have not been charged."),
+                'error_text': _("Please wait a few minutes and then try again."),
+                'for_help_text': _(
+                    "For help, contact {payment_support_link}."
+                ).format(payment_support_link=context.payment_support_link)
+            })
+        return self.render_to_response(context)
+
 
     def get_context_data(self, **kwargs):
         context = super(ReceiptResponseView, self).get_context_data(**kwargs)
@@ -68,26 +96,14 @@ class ReceiptResponseView(ThankYouView):
         is_payment_complete = True
         # NOTE: added PAYMENT_SUPPORT_EMAIL to ecommerce.yml
         payment_support_email = settings.PAYMENT_SUPPORT_EMAIL
-        payment_support_link = '<a href=\"mailto:{email}\">{email}</a>'.format(email=payment_support_email)
+        payment_support_link = '<a href="mailto:{email}">{email}</a>'.format(email=payment_support_email)
 
-        is_cybersource = all(k in self.request.POST for k in ('signed_field_names', 'decision', 'reason_code'))
-        if is_cybersource and self.request.POST['decision'] != 'ACCEPT':
-            # Cybersource may redirect users to this view if it couldn't recover
-            # from an error while capturing payment info.
-            is_payment_complete = False
-            page_title = _('Payment Failed')
-            error_summary = _("A system error occurred while processing your payment. You have not been charged.")
-            error_text = _("Please wait a few minutes and then try again.")
-            for_help_text = _(
-                "For help, contact {payment_support_link}."
-            ).format(payment_support_link=payment_support_link)
-        else:
-            # if anything goes wrong rendering the receipt, it indicates a problem fetching order data.
-            error_summary = _("An error occurred while creating your receipt.")
-            error_text = None  # nothing particularly helpful to say if this happens.
-            for_help_text = _(
-                "If your course does not appear on your dashboard, contact {payment_support_link}."
-            ).format(payment_support_link=payment_support_link)
+        # if anything goes wrong rendering the receipt, it indicates a problem fetching order data.
+        error_summary = _("An error occurred while creating your receipt.")
+        error_text = None  # nothing particularly helpful to say if this happens.
+        for_help_text = _(
+            "If your course does not appear on your dashboard, contact {payment_support_link}."
+        ).format(payment_support_link=payment_support_link)
 
         context.update({
             'page_title': page_title,
@@ -98,14 +114,12 @@ class ReceiptResponseView(ThankYouView):
             'error_text': error_text,
             'for_help_text': for_help_text,
             'payment_support_email': payment_support_email,
+            'payment_support_link': payment_support_link,
             'name': '{} {}'.format(self.request.user.first_name, self.request.user.last_name),
             'nav_hidden': True,
             'verify_link': get_lms_url('/verify_student/verify-now/'),
             'dashboard': get_lms_url('/dashboard'),
             'lms_url': get_lms_url(),
-            # Alternative code: self.object.voucherapplication_set.all()[0].voucher.code
-            'codes': [voucher.code for voucher in self.object.basket.vouchers.all()],
-            'course_key': self.object.lines.all()[0].product.course,
         })
 
         return context
