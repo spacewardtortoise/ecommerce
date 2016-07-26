@@ -21,7 +21,6 @@ class CouponReportCSVView(StaffOnlyMixin, View):
         """
         Generate coupon report for vouchers associated with the coupon.
         """
-
         coupon = Product.objects.get(id=coupon_id)
         filename = _("Coupon Report for {coupon_name}").format(coupon_name=unicode(coupon))
         coupons_vouchers = CouponVouchers.objects.filter(coupon=coupon)
@@ -35,8 +34,6 @@ class CouponReportCSVView(StaffOnlyMixin, View):
 
         writer = csv.DictWriter(response, fieldnames=field_names)
         writer.writeheader()
-
         for row in rows:
             writer.writerow(row)
-
         return response

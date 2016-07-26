@@ -57,7 +57,7 @@ class UtilTests(CouponMixin, CourseCatalogMockMixin, CourseCatalogTestMixin, Lms
         self.catalog.stock_records.add(self.stock_record)
 
         self.coupon = self.create_coupon(
-            title='Test product',
+            title='Tešt product'.decode('utf-8'),
             catalog=self.catalog,
             note='Tešt note',
             quantity=1,
@@ -263,8 +263,14 @@ class UtilTests(CouponMixin, CourseCatalogMockMixin, CourseCatalogTestMixin, Lms
                 code=VOUCHER_CODE
             )
 
-    def assert_report_row(self, row, coupon, voucher):
-        """ Verify that the row fields contain the right data. """
+    def assert_report_first_row(self, row, coupon, voucher):
+        """
+        Verify that the first row fields contain the right data.
+        Args:
+            row (list): First row in report
+            coupon: self.coupon
+            voucher (Voucher): voucher got through Coupon Name
+        """
         offer = voucher.offers.first()
         discount_data = get_voucher_discount_info(
             offer.benefit,
@@ -279,15 +285,28 @@ class UtilTests(CouponMixin, CourseCatalogMockMixin, CourseCatalogTestMixin, Lms
         self.assertEqual(row['Discount Percentage'], discount_percentage)
         self.assertEqual(row['Discount Amount'], discount_amount)
         self.assertEqual(row['Client'], coupon.client.name)
-        self.assertEqual(
-            row['URL'],
-            get_ecommerce_url() + self.REDEMPTION_URL.format(voucher.code)
-        )
         self.assertEqual(row['Note'], coupon.attr.note)
         self.assertEqual(row['Created By'].decode('utf-8'), coupon.history.first().history_user.full_name)
         self.assertEqual(row['Create Date'], coupon.history.latest().history_date.strftime("%b %d, %y"))
         self.assertEqual(row['Coupon Start Date'], voucher.start_datetime.strftime("%b %d, %y"))
         self.assertEqual(row['Coupon Expiry Date'], voucher.end_datetime.strftime("%b %d, %y"))
+
+    def assert_report_row(self, row, voucher):
+        """ Verify that the row fields contain the right data. """
+        offer = voucher.offers.first()
+        if voucher.usage == Voucher.SINGLE_USE:
+            max_uses_count = 1
+        elif voucher.usage != Voucher.SINGLE_USE and offer.max_global_applications is None:
+            max_uses_count = 10000
+        else:
+            max_uses_count = offer.max_global_applications
+
+        self.assertEqual(row['Maximum Coupon Usage'], max_uses_count)
+        self.assertEqual(row['Code'], voucher.code)
+        self.assertEqual(
+            row['URL'],
+            get_ecommerce_url() + self.REDEMPTION_URL.format(voucher.code)
+        )
 
     def test_generate_coupon_report(self):
         """ Verify the coupon report is generated properly. """
@@ -307,8 +326,8 @@ class UtilTests(CouponMixin, CourseCatalogMockMixin, CourseCatalogTestMixin, Lms
         field_names, rows = generate_coupon_report(self.coupon_vouchers)
 
         self.assertEqual(field_names, [
-            'Coupon Name',
             'Code',
+            'Coupon Name',
             'Maximum Coupon Usage',
             'Redemption Count',
             'Coupon Type',
@@ -331,9 +350,12 @@ class UtilTests(CouponMixin, CourseCatalogMockMixin, CourseCatalogTestMixin, Lms
             'Coupon Expiry Date',
         ])
 
+        voucher = Voucher.objects.get(name=rows[0]['Coupon Name'])
+        self.assert_report_first_row(rows.pop(0), self.coupon, voucher)
+
         for row in rows:
-            voucher = Voucher.objects.get(name=row['Coupon Name'])
-            self.assert_report_row(row, self.coupon, voucher)
+            voucher = Voucher.objects.get(code=row['Code'])
+            self.assert_report_row(row, voucher)
 
         self.assertNotIn('Catalog Query', field_names)
         self.assertNotIn('Course Seat Types', field_names)
@@ -341,14 +363,14 @@ class UtilTests(CouponMixin, CourseCatalogMockMixin, CourseCatalogTestMixin, Lms
 
     def test_report_for_inactive_coupons(self):
         """ Verify the coupon report show correct status for inactive coupons. """
-        coupon_name = 'Inačtive ćođe'
+        coupon_title = self.coupon.title
         create_vouchers(
             benefit_type=Benefit.FIXED,
             benefit_value=100.00,
             catalog=self.catalog,
             coupon=self.coupon,
             end_datetime=datetime.date(2015, 10, 30),
-            name=coupon_name,
+            name=coupon_title,
             quantity=1,
             start_datetime=datetime.date(2015, 10, 30),
             voucher_type=Voucher.SINGLE_USE
@@ -356,9 +378,10 @@ class UtilTests(CouponMixin, CourseCatalogMockMixin, CourseCatalogTestMixin, Lms
 
         __, rows = generate_coupon_report(self.coupon_vouchers)
 
-        inactive_coupon_row = rows[1]
-        self.assertEqual(inactive_coupon_row['Coupon Name'], coupon_name)
-        self.assertEqual(inactive_coupon_row['Status'], _('Inactive'))
+        # The data in row[0] is the same for all rows
+        # The data from row[1] is unique for all vouchers
+        self.assertEqual(rows[0]['Coupon Name'], coupon_title.encode('utf-8'))
+        self.assertEqual(rows[2]['Status'], _('Inactive'))
 
     def test_generate_coupon_report_for_query_coupons(self):
         """ Verify empty report fields for query coupons. """
@@ -457,13 +480,14 @@ class UtilTests(CouponMixin, CourseCatalogMockMixin, CourseCatalogTestMixin, Lms
         self.use_voucher('TEST', vouchers[0], self.user)
         __, rows = generate_coupon_report([coupon.attr.coupon_vouchers])
 
-        # rows[0] - first voucher header row
-        # rows[1] - first voucher row with usage information
-        # rows[2] - second voucher header row
-        self.assertEqual(len(rows), 3)
-        self.assertEqual(rows[0]['Redemption Count'], 1)
-        self.assertEqual(rows[1]['Redeemed By Username'], self.user.username)
-        self.assertEqual(rows[2]['Redemption Count'], 0)
+        # rows[0] - This row is different from other rows
+        # rows[1] - first voucher header row
+        # rows[2] - first voucher row with usage information
+        # rows[3] - second voucher header row
+        self.assertEqual(len(rows), 4)
+        self.assertEqual(rows[1]['Redemption Count'], 1)
+        self.assertEqual(rows[2]['Redeemed By Username'], self.user.username)
+        self.assertEqual(rows[3]['Redemption Count'], 0)
 
     def test_generate_coupon_report_for_used_query_coupon(self):
         """Test that used query coupon voucher reports which course was it used for."""
