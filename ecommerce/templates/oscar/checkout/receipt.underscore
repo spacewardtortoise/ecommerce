@@ -12,18 +12,16 @@
         records; it serves as your receipt. You will also receive a confirmation email with the same information at") %>
         <a class="nav-link" href="mailto:<%- receipt.email %>"><%- receipt.email %></a>.</div>
         <% if ( receipt.billedTo ) { %>
-            <div class="copy">
-              <p><%- gettext( "Billed to:" ) %>:
+            <div class="addressed-to">
                   <span class="name-first"><%- receipt.billedTo.firstName %></span>
-                  <span class="name-last"><%- receipt.billedTo.lastName %></span>
-                  (<span class="address-city"><%- receipt.billedTo.city %></span>,
+                  <span class="name-last"><%- receipt.billedTo.lastName %></span><br />
+                  <span class="address-city"><%- receipt.billedTo.city %></span>,
                   <span class="address-state"><%- receipt.billedTo.state %></span>
-                  <span class="address-postalcode"><%- receipt.billedTo.postalCode %></span>
-                  <span class="address-country"><%- receipt.billedTo.country.toUpperCase() %></span>)
-              </p>
+                  <span class="address-postalcode"><%- receipt.billedTo.postalCode %></span><br />
+                  <span class="address-country"><%- receipt.billedTo.country.toUpperCase() %></span><br />
             </div>
         <% }  else if ( receipt.shipping_address ) { %>
-            <div class="shipping-address"><address>
+            <div class="addressed-to"><address>
             <% for ( var i = 0; i < receipt.shipping_address.length; i++ ) { %>
                   <%- receipt.shipping_address[i] %> <br/>
                 <% } %>
@@ -32,14 +30,14 @@
 
         </div>
         <div class="order-headers order-summary">
-            <%= gettext( "Order Number" ) %>:
+            <span class="order-number-heading"><%= gettext( "Order Number" ) %>:</span>
             <div class="order-info"><%- receipt.orderNum %></div>
             <% if ( receipt.paymentProcessor ) { %>
-                <%= gettext( "Payment Method" ) %>:
+                <span class="order-payment-heading"><%= gettext( "Payment Method" ) %>:</span>
                 <div class="order-info"><%- receipt.paymentProcessor %></div>
              <% } %>
 
-            <%= gettext( "Order Date" ) %>:
+            <span class="order-date-heading"><%= gettext( "Order Date" ) %>:</span>
             <div class="order-info"><%- receipt.purchasedDatetime %></div>
             </div>
         </div>

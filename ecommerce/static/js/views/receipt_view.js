@@ -168,7 +168,7 @@ function ($, AjaxRetry, Backbone, _, Currency, StringUtils, AnalyticsUtils) {
         getPartnerData: function (order) {
             var partnerId = order.lines[0].product.stockrecords[0].partner;
             return $.ajax({
-                url: '/api/v2/partners/' +  partnerId + '/',
+                url: StringUtils.interpolate('/api/v2/partners/{partnerId}/', {partnerId: partnerId}),
                 type: 'GET',
                 dataType: 'json',
                 contentType: 'application/json',
@@ -380,14 +380,6 @@ function completeOrder(event) {     // jshint ignore:line
     } catch (err) {
         // Ignore the error as not all event inputs have the preventDefault method.
     }
-
-    analytics.track(
-        'edx.bi.credit.clicked_complete_credit',
-        {
-            category: 'credit',
-            label: courseKey
-        }
-    );
 
     createCreditRequest(providerId, courseKey, username).fail(function () {
         $errorContainer.removeClass('hidden');

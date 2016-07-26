@@ -17,6 +17,8 @@
   </div>
   <div class="complete-order">
     <button data-provider="<%- id %>" data-course-key="<%- course-key %>" data-username="<%- username %>"
-    class="complete-course" onClick=completeOrder(this)><%= gettext( "Get Credit") %></button>
+     class="complete-course" data-track-type="click" data-track'event="edx.bi.credit.clicked_complete_credit"
+     data-track-category="credit" data-track-label="<%- course-key %>" onClick=completeOrder(this)>
+     <%= gettext( "Get Credit") %></button>
   </div>
 </div>

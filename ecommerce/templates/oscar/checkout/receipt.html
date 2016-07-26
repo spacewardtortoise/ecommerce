@@ -21,21 +21,8 @@
 
 {% block content %}
 <div class="receipt">
-
-
-    <div class="container content-container">
-        <div id="receipt-container" class="pay-and-verify hidden" data-is-payment-complete='${is_payment_complete}'
-         data-platform-name='${platform_name}' data-verified='true' data-username='${name}' data-lms-url='{{ lms_url }}'>
-            {# data-is-request-in-themed-site='${is_request_in_themed_site}'> #}
-            <h1>{% trans "Loading Order Data..." %}</h1>
-            <span>{% trans "Please wait while we retrieve your order details." %}</span>
-        </div>
-    </div>
-<div id="error-container" class="hidden">
-    <div id="error" class="wrapper-msg wrapper-msg-activate">
-        <div class=" msg msg-activate">
-            <span class="msg-icon icon fa fa-exclamation-triangle" aria-hidden="true"></span>
-            <div class="msg-content">
+    <div class="error-container hidden">
+            <div class="error-message container">
                 <h3 class="title">
                     <span class="sr">{% blocktrans %} {{ error_summary }} {% endblocktrans %}</span>
                     {{ error_summary }}
@@ -47,11 +34,19 @@
                 </div>
                 {% endif %}
                 <div class="msg">
-                    <p>{% blocktrans %} {{ for_help_text }} {% endblocktrans %}</p>
+                    <p>{% autoescape off %}{% blocktrans %} {{ for_help_text }}
+                    {% endblocktrans %}{% endautoescape %}</p>
                 </div>
             </div>
+    </div>
+
+    <div class="container content-container">
+        <div id="receipt-container" class="pay-and-verify hidden" data-is-payment-complete="{{ is_payment_complete }}"
+         data-platform-name="{{ platform_name }}" data-verified='true' data-username="{{ name }}"
+         data-lms-url="{{ lms_url }}">
+            <h1>{% trans "Loading Order Data..." %}</h1>
+            <span>{% trans "Please wait while we retrieve your order details." %}</span>
         </div>
     </div>
-</div>
 </div>
 {% endblock content %}
