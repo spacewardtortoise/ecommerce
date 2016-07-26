@@ -1,9 +1,6 @@
 """HTTP endpoints for interacting with vouchers."""
-import hashlib
 import logging
 
-from django.conf import settings
-from django.core.cache import cache
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 import django_filters
@@ -15,6 +12,7 @@ from rest_framework.response import Response
 from rest_framework_extensions.decorators import action
 from slumber.exceptions import SlumberBaseException
 
+from ecommerce.core.constants import DEFAULT_CATALOG_PAGE_SIZE
 from ecommerce.core.url_utils import get_lms_url
 from ecommerce.courses.models import Course
 from ecommerce.courses.utils import get_course_info_from_lms
@@ -75,27 +73,15 @@ class VoucherViewSet(NonDestroyableModelViewSet):
             logger.error('No product(s) are associated with this code.')
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
-        query = voucher.offers.first().benefit.range.catalog_query
-        if query:
-            cache_key = 'voucher_offers_{}'.format(query)
-        else:
-            cache_key = 'voucher_offers_{}'.format(voucher.id)
-
-        cache_hash = hashlib.md5(cache_key).hexdigest()
-        offers = cache.get(cache_hash)
-        if not offers:
-            try:
-                offers = self.get_offers(products, request, voucher)
-            except (ConnectionError, SlumberBaseException, Timeout):
-                logger.error('Could not get course information.')
-                return Response(status=status.HTTP_400_BAD_REQUEST)
-            except Http404:
-                logger.error('Could not get information for product %s.', products[0].title)
-                return Response(status=status.HTTP_404_NOT_FOUND)
-            cache.set(cache_hash, offers, settings.COURSES_API_CACHE_TIMEOUT)
-
-        page = self.paginate_queryset(offers)
-        return self.get_paginated_response(page)
+        try:
+            offers_data = self.get_offers(products, request, voucher)
+        except (ConnectionError, SlumberBaseException, Timeout):
+            logger.error('Could not get course information.')
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        except Http404:
+            logger.error('Could not get information for product %s.', products[0].title)
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        return Response(data=offers_data)
 
     def get_offers(self, products, request, voucher):
         """
@@ -109,9 +95,16 @@ class VoucherViewSet(NonDestroyableModelViewSet):
         """
         benefit = voucher.offers.first().benefit
         catalog_query = benefit.range.catalog_query
+        next_page = None
         offers = []
         if catalog_query:
-            query_results = get_range_catalog_query_results(query=catalog_query, site=request.site)
+            response = get_range_catalog_query_results(
+                limit=request.GET.get('limit', DEFAULT_CATALOG_PAGE_SIZE),
+                offset=request.GET.get('offset'),
+                query=catalog_query,
+                site=request.site
+            )
+            next_page = response['next']
             course_ids = [product.course_id for product in products]
             courses = Course.objects.filter(id__in=course_ids)
             stock_records = StockRecord.objects.filter(product__in=products)
@@ -124,7 +117,7 @@ class VoucherViewSet(NonDestroyableModelViewSet):
                     logger.info('%s is unavailable to buy. Omitting it from the results.', product)
                     continue
                 course_id = product.course_id
-                course_catalog_data = next((result for result in query_results if result['key'] == course_id), None)
+                course_catalog_data = next((result for result in response['results'] if result['key'] == course_id), None)
 
                 try:
                     stock_record = stock_records.get(product__id=product.id)
@@ -165,7 +158,7 @@ class VoucherViewSet(NonDestroyableModelViewSet):
                     stock_record=stock_record,
                     voucher=voucher
                 ))
-        return offers
+        return {'next': next_page, 'results': offers}
 
     def get_course_offer_data(self, benefit, course, course_info, is_verified, stock_record, voucher):
         """

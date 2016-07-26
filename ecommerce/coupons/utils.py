@@ -10,26 +10,28 @@ from ecommerce.core.constants import DEFAULT_CATALOG_PAGE_SIZE
 Product = get_model('catalogue', 'Product')
 
 
-def get_range_catalog_query_results(query, site):
+def get_range_catalog_query_results(limit, query, site, offset=None):
     """
     Get catalog query results
 
     Arguments:
+        limit (int): Number of results per page
         query (str): ElasticSearch Query
         site (Site): Site object containing Site Configuration data
+        offset (int): Page offset
 
     Returns:
         dict: Query seach results received from Course Catalog API
     """
-    cache_key = 'course_runs_{}'.format(query)
+    cache_key = 'course_runs_{}_{}_{}'.format(query, limit, offset)
     cache_hash = hashlib.md5(cache_key).hexdigest()
     response = cache.get(cache_hash)
     if not response:
         response = site.siteconfiguration.course_catalog_api_client.course_runs.get(
+            limit=limit,
+            offset=offset,
             q=query,
-            page_size=DEFAULT_CATALOG_PAGE_SIZE,
-            limit=DEFAULT_CATALOG_PAGE_SIZE
-        )['results']
+        )
         cache.set(cache_hash, response, settings.COURSES_API_CACHE_TIMEOUT)
     return response
 
@@ -46,9 +48,13 @@ def get_seats_from_query(site, query, seat_types):
     Returns:
         List of seat products retrieved from the course catalog query.
     """
-    response = get_range_catalog_query_results(query=query, site=site)
+    results = get_range_catalog_query_results(
+        limit=DEFAULT_CATALOG_PAGE_SIZE,
+        query=query,
+        site=site
+    )['results']
     query_products = []
-    for course in response:
+    for course in results:
         try:
             product = Product.objects.get(
                 course_id=course['key'],
