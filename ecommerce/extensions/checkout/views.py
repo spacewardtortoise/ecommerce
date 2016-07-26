@@ -10,7 +10,7 @@ from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext as _
 from django.views.decorators.csrf import csrf_exempt
-from django.views.generic import RedirectView
+from django.views.generic import RedirectView, TemplateView
 from oscar.apps.checkout.views import *  # pylint: disable=wildcard-import, unused-wildcard-import
 from oscar.core.loading import get_class, get_model
 
@@ -58,7 +58,7 @@ class FreeCheckoutView(EdxOrderPlacementMixin, RedirectView):
         return url
 
 
-class ReceiptResponseView(ThankYouView):
+class ReceiptResponseView(TemplateView):
     """ Handles behavior needed to display an order receipt. """
 
     template_name = 'checkout/receipt.html'
