@@ -47,12 +47,13 @@ class CatalogViewSet(NestedViewSetMixin, ReadOnlyModelViewSet):
         if query and seat_types:
             seat_types = seat_types.split(',')
             try:
-                results = get_range_catalog_query_results(
+                response = get_range_catalog_query_results(
                     limit=limit,
                     offset=offset,
                     query=query,
                     site=request.site
-                )['results']
+                )
+                results = response['results']
                 course_ids = [result['key'] for result in results]
                 courses = serializers.CourseSerializer(
                     Course.objects.filter(id__in=course_ids),
