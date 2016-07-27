@@ -91,7 +91,8 @@ class VoucherViewSet(NonDestroyableModelViewSet):
             request (HttpRequest): Request data
             voucher (Voucher): Oscar Voucher for which the offers are returned
         Returns:
-            List: List of course offers where each offer is represented by a dictionary
+            dict: Dictionary containing a link to the next page of Course Discovery results and
+                  a List of course offers where each offer is represented as a dictionary
         """
         benefit = voucher.offers.first().benefit
         catalog_query = benefit.range.catalog_query
@@ -117,7 +118,10 @@ class VoucherViewSet(NonDestroyableModelViewSet):
                     logger.info('%s is unavailable to buy. Omitting it from the results.', product)
                     continue
                 course_id = product.course_id
-                course_catalog_data = next((result for result in response['results'] if result['key'] == course_id), None)
+                course_catalog_data = next(
+                    (result for result in response['results'] if result['key'] == course_id),
+                    None
+                )
 
                 try:
                     stock_record = stock_records.get(product__id=product.id)
